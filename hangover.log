@@ -1,0 +1,6 @@
+[DEBUG] ho->font: Loaded font library
+[DEBUG] ho->load: Init objects
+[DEBUG] ho->load: Init objects
+[DEBUG] ho->texture: Loaded texture
+[DEBUG] ho->texture: Loaded texture
+[CRITICAL] ho->texture: failed to load image
