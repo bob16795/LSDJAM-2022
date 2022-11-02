@@ -8,3 +8,5 @@ const
   BG_COLOR* = newColor(145, 145, 255, 255)
   SENSITIVITY* = 0.05
   WALK_SPEED* = 6
+  PLAYER_HEIGHT* = 2.0
+  GRAVITY* = -5

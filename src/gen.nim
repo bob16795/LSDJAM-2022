@@ -12,10 +12,23 @@ proc genLevel*(): Level =
   for x in -10..10:
     for y in -10..10:
       var
-        x1: float32 = 5 * x.float32
-        y1: float32 = 5 * y.float32
-        x2: float32 = 5 * x.float32 + 5
-        y2: float32 = 5 * y.float32 + 5
+        x1: float32 = 5 * x.float32 - 2.5
+        y1: float32 = 5 * y.float32 - 2.5
+        x2: float32 = 5 * x.float32 + 2.5
+        y2: float32 = 5 * y.float32 + 2.5
+
+      result.floors &= Floor(
+        x1: x1, y1: y1,
+        x2: x2, y2: y2,
+        x3: x1, y3: y2,
+        z: 0
+      )
+      result.floors &= Floor(
+        x1: x1, y1: y1,
+        x2: x2, y2: y2,
+        x3: x2, y3: y1,
+        z: 0
+      )
 
       verts &= [
         Vert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
@@ -28,10 +41,10 @@ proc genLevel*(): Level =
   for a in -10..10:
     var z1: float32 = 0
     var z2: float32 = 5
-    var x1: float32 = a.float32 * 5
-    var y1: float32 = 50
-    var x2: float32 = a.float32 * 5 + 5
-    var y2: float32 = 50
+    var x1: float32 = a.float32 * 5 + 2.5
+    var y1: float32 = 52.5
+    var x2: float32 = a.float32 * 5 - 2.5
+    var y2: float32 = 52.5
     var normy = x2 - x1
     var normx = y2 - y1
 
@@ -50,6 +63,16 @@ proc genLevel*(): Level =
       Vert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
       Vert(x: x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
     ]
+
+    normy = x2 - x1
+    normx = -(y2 - y1)
+
+    result.walls &= Wall(
+      x1: x1, y1: -y1,
+      x2: x2, y2: -y2,
+      top: z2, bot: z1,
+      cnorm: normalize(vec3(-normx.float32, 0, -normy.float32))
+    )
     verts &= [
       Vert(x: x1, y: z1, z: -y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
       Vert(x: x2, y: z2, z: -y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
@@ -58,6 +81,16 @@ proc genLevel*(): Level =
       Vert(x: x2, y: z2, z: -y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
       Vert(x: x1, y: z2, z: -y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
     ]
+
+    normy = y2 - y1
+    normx = x2 - x1
+
+    result.walls &= Wall(
+      x1: y1, y1: x1,
+      x2: y2, y2: x2,
+      top: z2, bot: z1,
+      cnorm: normalize(vec3(-normx.float32, 0, -normy.float32))
+    )
     verts &= [
       Vert(z: x1, y: z1, x: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
       Vert(z: x2, y: z2, x: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
@@ -66,6 +99,16 @@ proc genLevel*(): Level =
       Vert(z: x2, y: z2, x: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
       Vert(z: x1, y: z2, x: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
     ]
+
+    normy = -(y2 - y1)
+    normx = x2 - x1
+
+    result.walls &= Wall(
+      x1: -y1, y1: x1,
+      x2: -y2, y2: x2,
+      top: z2, bot: z1,
+      cnorm: normalize(vec3(-normx.float32, 0, -normy.float32))
+    )
     verts &= [
       Vert(z: x1, y: z1, x: -y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
       Vert(z: x2, y: z2, x: -y2, u: 1, v: unit(1), xn: -normx, zn: -normy),

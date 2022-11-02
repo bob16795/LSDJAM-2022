@@ -13,7 +13,7 @@ type
     ratio*: float32
     
 proc newCamera*(): Camera =
-  result.pos = vec4(0'f32, 2, 0, 1)
+  result.pos = vec4(0'f32, 4, 0, 1)
   result.forward = vec4(vec3(-5'f32, 0, -5).normalize(), 1'f32)
 
 proc update*(c: var Camera, dt: float) =

@@ -123,8 +123,9 @@ Game:
     setPercent(0.5)
     setStatus("Init objects")
 
-    # level = newLevel("content/levels/1.lvl")
-    level = genLevel()
+    # level = genLevel()
+
+    level = newLevel("content/levels/1.lvl")
 
     # objs &= newObject("scenes/room.obj", "scenes/tex_1.png")
 
@@ -142,6 +143,7 @@ Game:
 
   proc Update(dt: float, delayed: bool): bool =
     cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED
+    cam.vel.y += GRAVITY * dt
 
     if level != nil:
       level.collide(cam.pos.xyz, cam.vel)
