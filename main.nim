@@ -4,6 +4,7 @@ import src/objects
 import src/obj2d
 import src/levels
 import src/data
+import src/gen
 import src/entity
 import glm
 import glfw
@@ -122,11 +123,12 @@ Game:
     setPercent(0.5)
     setStatus("Init objects")
 
-    level = newLevel("content/levels/1.lvl")
+    # level = newLevel("content/levels/1.lvl")
+    level = genLevel()
 
     # objs &= newObject("scenes/room.obj", "scenes/tex_1.png")
 
-    entities &= newEntity2D(newTexture("content/images/rock.png"))
+    # entities &= newEntity2D(newTexture("content/images/rock.png"))
     
     cam = newCamera()
     size = newVector2(800, 600)

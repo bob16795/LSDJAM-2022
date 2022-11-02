@@ -5,16 +5,16 @@ import glm
 
 type
   Level* = ref object of Object
-    walls: seq[Wall]
+    walls*: seq[Wall]
 
   Wall* = object
-    x1, y1: float32
-    x2, y2: float32
-    top: float32
-    bot: float32
-    cnorm: Vec3[float32]
+    x1*, y1*: float32
+    x2*, y2*: float32
+    top*: float32
+    bot*: float32
+    cnorm*: Vec3[float32]
 
-template unit(x: float32): float32 = x / 3
+template unit*(x: float32): float32 = x / 3
 
 proc newLevel*(file: string): Level =
   result = Level()
