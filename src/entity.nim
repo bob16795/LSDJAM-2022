@@ -26,7 +26,7 @@ proc update*(e: var Entity2D, lev: Level, dt: float32) =
   e.pos += vel
 
   e.model.pos = e.pos + vec3(0'f32, 0.75, 0)
-  e.base.model = translate(mat4(1'f32), e.pos - vec3(0'f32, 2.5, 0)).scale(vec3(2.0'f32, 2.0, 2.0))
+  e.base.model = mat4(1'f32).translate(e.pos - vec3(0'f32, 1.5, 0)).scale(vec3(1.5'f32, 1.5, 1.5))
 
 proc draw*(e: var Entity2D, m: Mat4[float32]) =
   e.model.draw(m)

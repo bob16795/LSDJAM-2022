@@ -7,6 +7,7 @@ import src/data
 import src/gen
 import src/portal
 import src/entity
+import random
 import glm
 import glfw
 
@@ -27,7 +28,7 @@ Game:
 
     moveDir: Vector2
 
-    level: Level
+    levels: seq[Level]
 
     portals: seq[Portal]
 
@@ -49,6 +50,7 @@ Game:
   proc resize(data: pointer): bool =
     var dat = cast[ptr tuple[x, y: int32]](data)[]
     size = newVector2(dat.x.float32, dat.y.float32)
+    screenSize = size
 
     cam.ratio = dat.x.float32 / dat.y.float32
   
@@ -125,18 +127,24 @@ Game:
     prog.registerParam("WIN_SCALE", SPKFloat2)
     prog.registerParam("lightPos", SPKFloat4)
     prog.registerParam("brightness", SPKFloat1)
+    prog.registerParam("fogColor", SPKFloat4)
+    prog.registerParam("fogDensity", SPKFloat1)
 
     setPercent(0.5)
     setStatus("Init objects")
 
-    # level = genLevel()
+    randomize()
 
-    level = newLevel("content/levels/1.lvl")
+    var l = genLevel(sample(PROC_DATA))
 
-    portals &= newPortal(
-      size,
-      scale(mat4(1'f32), vec3(2'f32, 4, 2))
-    ) 
+    levels = @[l.level]
+    portals = l.portals
+
+    # portals &= newPortal(
+    #   size,
+    #   scale(mat4(1'f32), vec3(2'f32, 4, 2))
+    # ) 
+    # portals[0].dst = -1
 
     # objs &= newObject("scenes/room.obj", "scenes/tex_1.png")
 
@@ -155,27 +163,39 @@ Game:
   proc Update(dt: float, delayed: bool): bool =
     cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED
     cam.vel.y += GRAVITY * dt
+
+    if levels != @[]:
+      for l in levels:
+        l.collide(cam.pos.xyz, cam.vel)
+
+    var pv = cam.pos
     
-    var pv = cam.getMat()
-
-    if level != nil:
-      level.collide(cam.pos.xyz, cam.vel)
-
     cam.update(dt)
 
-    for o in 0..<len entities:
-      entities[o].update(level, dt)
+    # for o in 0..<len entities:
+    #   entities[o].update(level, dt)
 
-    var
-      al = inverse(pv) * vec4(0'f32, 0, 0, 1)
-      bl = inverse(cam.getMat()) * vec4(0'f32, 0, 0, 1)
-
-    var tp = -1
     for pi in 0..<len portals:
-      if portals[pi].contains(cam, vec3(al.x, al.y, al.z), vec3(bl.z, bl.y, bl.z)):
-        tp = pi
-    if tp != -1:
-      cam.view = portals[tp].getView(cam.view, portals[portals[tp].dst])
+      if portals[pi].contains(pv, cam.pos):
+        if portals[pi].dst == -1:
+          var done: bool
+          if rand(1..10) < 7:
+            var ct: seq[int]
+            for pj in 0..<len portals:
+              if pj != pi and portals[pj].dst == -1:
+                ct &= pj
+            if ct.len > 1:
+              portals[pi].dst = ct[rand(len(ct) - 1)]
+              done = true
+          if not done:
+            echo "gen"
+            var l = genLevel(sample(PROC_DATA), translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)))
+            levels &= l.level
+            portals[pi].dst = portals.len()
+            portals &= l.portals
+          portals[portals[pi].dst].dst = pi
+        cam.view = portals[pi].getView(cam.view, portals[portals[pi].dst])
+        break
 
   proc drawScene(rec: int = 0, outer: int = -1)
 
@@ -187,9 +207,9 @@ Game:
 
     for v in viewStack[0..^2]:
       var
-        p: array[4, Vec4[float32]]
+        p: array[8, Vec4[float32]]
         found_neg_w: bool
-      for pi in 0..<4:
+      for pi in 0..<8:
         var pnt = portals[outer].verts[pi]
         p[pi] = (perspective(radians(FOVY), cam.ratio, ZNEAR, ZFAR) * v * portals[outer].model) * vec4(pnt.x, pnt.y, pnt.z, 1.0)
         if p[pi].w < 0.0:
@@ -203,7 +223,7 @@ Game:
       var
         min_x, min_y, max_x, max_y: Vec4[float32] = p[0]
 
-      for i in 0..<4:
+      for i in 0..<8:
         if (p[i].x < min_x.x): min_x = p[i]
         if (p[i].x > max_x.x): max_x = p[i]
         if (p[i].y < min_y.y): min_y = p[i]
@@ -229,7 +249,7 @@ Game:
     glEnable(GL_STENCIL_TEST)
     glEnable(GL_SCISSOR_TEST)
     for pi in 0..<len portals:
-      if outer == -1 or pi == outer:
+      if (outer == -1 or pi == outer) and portals[pi].dst != -1:
         var
           portalCam = portals[pi].getView(viewStack[^1], portals[portals[pi].dst])
         viewStack &= portalCam
@@ -257,7 +277,7 @@ Game:
     
     glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
     glDepthMask(save_depth_mask)
-    
+
 
   proc drawScene(rec: int = 0, outer: int = -1) =
     if rec > RECURSION:
@@ -317,13 +337,13 @@ Game:
       
       glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
       glDepthMask(save_depth_mask)
-      
+
       prog.setParam("view", viewStack[^1].caddr)
-    
+
     var val: GLfloat = 0
     prog.setParam("brightness", addr val)
-    if level != nil:
-      level.draw(prog)
+    for l in levels:
+      l.draw(prog)
     for o in 0..<len objs:
       objs[o].draw(prog)
     
@@ -364,6 +384,12 @@ Game:
 
     glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
 
+    var c = [levels[0].fogColor.rf, levels[0].fogColor.gf, levels[0].fogColor.bf, levels[0].fogColor.af]
+    prog.setParam("fogColor", c.addr)
+    prog.setParam("fogDensity", levels[0].fogDensity.addr)
+
+    clearBuffer(ctx, levels[0].fogColor)
+    
     drawScene()
 
   proc gameClose() =

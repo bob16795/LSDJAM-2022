@@ -40,6 +40,13 @@ proc newObject*(obj: string, png = "", model = mat4(1'f32)): Object =
   glBufferData(GL_ARRAY_BUFFER, sizeof(verts[0]) * len(verts), addr verts[0], GL_STATIC_DRAW)
   result.model = model
 
+proc cloneObject*(o: Object, model = o.model): Object =
+  result.VBO = o.VBO
+  result.EBO = o.EBO
+  result.tex = o.tex
+  result.vertCount = o.vertCount
+  result.model = model
+
 method draw*(o: Object, p: var Shader) =
   p.use()
   p.setParam("model", o.model.caddr)

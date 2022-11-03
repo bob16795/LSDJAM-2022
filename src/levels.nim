@@ -9,6 +9,8 @@ type
   Level* = ref object of Object
     walls*: seq[Wall]
     floors*: seq[Floor]
+    fogColor*: Color
+    fogDensity*: float32
 
   Wall* = object
     x1*, y1*: float32
@@ -114,12 +116,15 @@ proc newLevel*(file: string): Level =
   glBindBuffer(GL_ARRAY_BUFFER, result.VBO)
   glBufferData(GL_ARRAY_BUFFER, sizeof(verts[0]) * len(verts), addr verts[0], GL_STATIC_DRAW)
   result.model = mat4(1'f32)
+  result.fogDensity = 0.05
 
 proc sign*(p1, p2, p3: Vec2[float32]): float =
   return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
 
-proc collide*(level: Level, pos: Vec3[float32], vel: var Vec3[float32]) =
-  var diff: Vec3[float32]
+proc collide*(level: Level, p: Vec3[float32], vel: var Vec3[float32]) =
+  var pos = inverse(level.model) * vec4(p, 1.0)
+  var vy = vel.y
+  vel.y = 0
   for wall in level.walls:
     if pos.y - PLAYER_HEIGHT + 0.5 in wall.bot..wall.top:
       var dir = normalize(vel)
@@ -135,8 +140,8 @@ proc collide*(level: Level, pos: Vec3[float32], vel: var Vec3[float32]) =
       var t2 = dot(v1, v3) / dp
 
       if t1 >= 0.0 and t1 <= vel.length() and (t2 >= -0.1 and t2 <= 1.1):
-        diff += dot(vel, wall.cnorm) * wall.cnorm
-  vel -= diff
+        vel -= dot(vel, wall.cnorm) * wall.cnorm
+  vel.y = vy
   var pt = vec2[float32](pos.x, pos.z)
   var under: seq[float32]
   for floor in level.floors:

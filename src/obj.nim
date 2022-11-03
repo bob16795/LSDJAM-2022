@@ -84,8 +84,6 @@ proc getObjFile*(path:string): obj_data =
     if startsWith(str_seq[i],"f") == true:
       var f = parse_face(str_seq[i])
       result.data_face.add(f)
-
-
       continue
 
     if startsWith(str_seq[i],"vn") == true:
@@ -101,7 +99,6 @@ proc getObjFile*(path:string): obj_data =
     if startsWith(str_seq[i],"v") == true:
       var v = parse_3f(str_seq[i])
       result.data_vert.add(v)
-      #echo a.data_vertex
       continue
 
     if startsWith(str_seq[i]," ") == true:
