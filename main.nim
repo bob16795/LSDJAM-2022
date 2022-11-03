@@ -137,18 +137,11 @@ Game:
 
     var l = genLevel(sample(PROC_DATA))
 
-    levels = @[l.level]
-    portals = l.portals
+    levels = @[]
+    portals = @[]
 
-    # portals &= newPortal(
-    #   size,
-    #   scale(mat4(1'f32), vec3(2'f32, 4, 2))
-    # ) 
-    # portals[0].dst = -1
-
-    # objs &= newObject("scenes/room.obj", "scenes/tex_1.png")
-
-    # entities &= newEntity2D(newTexture("content/images/rock.png"))
+    levels &= l.level
+    portals &= l.portals
     
     cam = newCamera()
     size = newVector2(800, 600)
@@ -188,7 +181,6 @@ Game:
               portals[pi].dst = ct[rand(len(ct) - 1)]
               done = true
           if not done:
-            echo "gen"
             var l = genLevel(sample(PROC_DATA), translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)))
             levels &= l.level
             portals[pi].dst = portals.len()
@@ -272,11 +264,17 @@ Game:
     glDepthMask(GL_TRUE)
 
     for p in portals:
-      prog.setParam("model", p.toWorld.caddr)
-      p.draw(prog)
+      if p.dst != -1:
+        prog.setParam("model", p.toWorld.caddr)
+        p.draw(prog)
     
     glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
     glDepthMask(save_depth_mask)
+
+    for p in portals:
+      if p.dst == -1:
+        prog.setParam("model", p.toWorld.caddr)
+        p.draw(prog)
 
 
   proc drawScene(rec: int = 0, outer: int = -1) =
