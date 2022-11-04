@@ -99,6 +99,8 @@ Game:
         moveDir.x += 1
       of keyD:
         moveDir.x -= 1
+      of keyH:
+        echo len(levels)
       else: discard
   
   proc keyUp(data: pointer): bool =
@@ -114,6 +116,25 @@ Game:
       of keyD:
         moveDir.x += 1
       else: discard
+
+  proc addDst(pi: int) =
+    if portals[pi].dst != -1: return
+    var done: bool
+    if rand(1..10) < 8:
+      var ct: seq[int]
+      for pj in 0..<len portals:
+        if pj != pi and portals[pj].dst == -1:
+          ct &= pj
+      if ct.len > 1:
+        portals[pi].dst = ct[rand(len(ct) - 1)]
+        done = true
+    if not done:
+      var l = genLevel(sample(PROC_DATA), translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)), len(levels))
+      levels &= l.level
+      portals[pi].dst = portals.len()
+      objs &= l.objects
+      portals &= l.portals
+    portals[portals[pi].dst].dst = pi
 
   proc Initialize(ctx: var GraphicsContext) =
     setPercent(0)
@@ -142,6 +163,10 @@ Game:
 
     levels &= l.level
     portals &= l.portals
+    objs &= l.objects
+
+    for pj in 0..<len portals:
+      addDst(pj)
     
     cam = newCamera()
     size = newVector2(800, 600)
@@ -170,22 +195,11 @@ Game:
 
     for pi in 0..<len portals:
       if portals[pi].contains(pv, cam.pos):
-        if portals[pi].dst == -1:
-          var done: bool
-          if rand(1..10) < 7:
-            var ct: seq[int]
-            for pj in 0..<len portals:
-              if pj != pi and portals[pj].dst == -1:
-                ct &= pj
-            if ct.len > 1:
-              portals[pi].dst = ct[rand(len(ct) - 1)]
-              done = true
-          if not done:
-            var l = genLevel(sample(PROC_DATA), translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)))
-            levels &= l.level
-            portals[pi].dst = portals.len()
-            portals &= l.portals
-          portals[portals[pi].dst].dst = pi
+        # if portals[pi].dst == -1:
+        #   addDst(pi)
+        for pj in 0..<len portals:
+          if portals[pj].level == portals[portals[pi].dst].level:
+            addDst(pj)
         cam.view = portals[pi].getView(cam.view, portals[portals[pi].dst])
         break
 

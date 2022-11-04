@@ -41,6 +41,7 @@ proc newObject*(obj: string, png = "", model = mat4(1'f32)): Object =
   result.model = model
 
 proc cloneObject*(o: Object, model = o.model): Object =
+  result = Object()
   result.VBO = o.VBO
   result.EBO = o.EBO
   result.tex = o.tex

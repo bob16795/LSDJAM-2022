@@ -8,6 +8,7 @@ type
   Portal* = ref object of Object
     verts*: array[8, Vert]
     dst*: int
+    level*: int
 
 const
   indices = [

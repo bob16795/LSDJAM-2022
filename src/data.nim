@@ -29,7 +29,7 @@ const
   PROC_DATA* = [
     WorldData(
       models: @[
-        "content/objects/person.obj"
+        "content/objects/grave1.obj"
       ],
       pix: @[
         "content/images/uv.png"
@@ -47,7 +47,8 @@ const
     ),
     WorldData(
       models: @[
-        "content/objects/person.obj"
+        "content/objects/bed1.obj",
+        "content/objects/chair1.obj",
       ],
       pix: @[
         "content/images/rock.png",
@@ -66,7 +67,7 @@ const
     ),
     WorldData(
       models: @[
-        "content/objects/person.obj"
+        "content/objects/couch1.obj"
       ],
       pix: @[
         "content/images/rock.png",
@@ -85,7 +86,9 @@ const
     ),
     WorldData(
       models: @[
-        "content/objects/person.obj"
+        "content/objects/mushroomT1.obj",
+        "content/objects/mushroomT2.obj",
+        "content/objects/mushroomT3.obj",
       ],
       pix: @[
         "content/images/uv.png"

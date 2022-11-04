@@ -10,12 +10,18 @@ type
   GenOutput* = object
     level*: Level
     portals*: seq[Portal]
+    objects*: seq[Object]
 
 var
   screenSize*: Vector2
 
-proc genLevel*(data: WorldData, translate = mat4(1'f32), seed = 0, rec = 0): GenOutput =
+proc genLevel*(data: WorldData, translate = mat4(1'f32), idx = 0, seed = 0, rec = 0): GenOutput =
   result.level = Level()
+
+  var instObjs: seq[Object]
+
+  for name in data.models:
+    instObjs &= newObject(name)
 
   result.level.tex = newTexture(data.tex)
   
@@ -244,7 +250,6 @@ proc genLevel*(data: WorldData, translate = mat4(1'f32), seed = 0, rec = 0): Gen
       ) 
     idx += 1
 
-
   result.level.vertCount = len(verts)
 
   glGenBuffers(1, addr result.level.VBO)
@@ -253,3 +258,8 @@ proc genLevel*(data: WorldData, translate = mat4(1'f32), seed = 0, rec = 0): Gen
   result.level.model = mat4(1'f32) * translate
   result.level.fogColor = data.fogColor
   result.level.fogDensity = data.fogDensity
+
+  result.objects &= cloneObject(sample(instObjs), translate)
+
+  for p in result.portals:
+    p.level = idx
