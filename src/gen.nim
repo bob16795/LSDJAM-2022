@@ -15,6 +15,7 @@ type
 var
   screenSize*: Vector2
 
+
 proc genLevel*(data: WorldData, translate = mat4(1'f32), idx = 0, seed = 0, rec = 0): GenOutput =
   result.level = Level()
 

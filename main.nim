@@ -5,8 +5,12 @@ import src/obj2d
 import src/levels
 import src/data
 import src/gen
+import src/fsm
 import src/portal
 import src/entity
+import src/horde
+import src/ui
+import locks
 import random
 import glm
 import glfw
@@ -17,6 +21,10 @@ const
   geomCode = staticRead("static/geom.glsl")
   
 Game:
+  type TexData = ref object
+    data: pointer
+    size: Vector2
+
   var
     bg: Color
 
@@ -34,9 +42,19 @@ Game:
 
     viewStack: seq[Mat4[float32]]
 
+    textures: TextureAtlas
+
+    uiFont: Font
+
+    fsm: StateMachine
+
     objs: seq[Object]
     entities: seq[Entity2D]
     objs2d: seq[Obj2D]
+    
+    tex: Texture
+    texLock: Lock
+    texdata {.global.}: pointer
 
   proc drawLoading(pc: float32, loadStatus: string, ctx: GraphicsContext, size: Point) =
     clearBuffer(ctx, bg)
@@ -135,10 +153,26 @@ Game:
       objs &= l.objects
       portals &= l.portals
     portals[portals[pi].dst].dst = pi
+  
+  proc setFlag(d: pointer): bool =
+    fsm.setFlag(cast[ptr int](d)[])
+
+
+  proc newTex(data: pointer, w, h: cint) =
+    {.cast(gcsafe).}:
+      acquire(texLock)
+      texdata = data
+      release(texLock)
 
   proc Initialize(ctx: var GraphicsContext) =
+    initLock(texLock)
+    initHorde()
     setPercent(0)
-    setStatus("Init objects")
+    setStatus("Init shaders")
+
+    tex = newTexture(newVector2(128, 384))
+
+    fsm = initMainMachine()
 
     glEnable(GL_DEPTH_TEST)
     prog = newShader(vertCode, geomCode, fragCode)
@@ -150,6 +184,18 @@ Game:
     prog.registerParam("brightness", SPKFloat1)
     prog.registerParam("fogColor", SPKFloat4)
     prog.registerParam("fogDensity", SPKFloat1)
+
+    setPercent(0.25)
+    setStatus("Init textures")
+
+    textures = newTextureAtlas()
+    textures &= newTextureData("content/images/level1.png", "ui")
+
+    textures.pack()
+
+    uiFont = newFont("content/font.ttf", FONT_SIZE)
+
+    setupUI(textures, uiFont)
 
     setPercent(0.5)
     setStatus("Init objects")
@@ -175,10 +221,27 @@ Game:
     createListener(EVENT_RESIZE, resize)
     createListener(EVENT_PRESS_KEY, keyDown)
     createListener(EVENT_RELEASE_KEY, keyUp)
+    createListener(EVENT_PRESS_UI, setFlag)
     setPercent(1.0)
     setStatus("Done")
 
+    var dataI = FE_LOAD
+    discard setFlag(addr dataI)
+
   proc Update(dt: float, delayed: bool): bool =
+    acquire(texLock)
+    if texdata != nil:
+      echo "op"
+      tex.bindTo(GL_TEXTURE0)
+      # tex nothing
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA.GLint, 128, 384,
+          0, GL_RGBA, GL_UNSIGNED_BYTE, texdata)
+      texdata = nil
+    else:
+      sendRequest("wall", newTex)
+    release(texLock)
+
+
     cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED
     cam.vel.y += GRAVITY * dt
 
@@ -296,6 +359,11 @@ Game:
       return
       
     var scissor:Rect
+
+    # update ui
+    var sc = newVector2(size.x.float32 / 100, size.y.float32 / 100)
+    var scale = min(sc.x, sc.y)
+    uiScaleMult = scale / UI_MULT
     
     if outer != -1:
       scissor = clipPortal(outer)
@@ -379,30 +447,43 @@ Game:
       entities[o].draw(viewStack[^1])
 
   proc Draw(ctx: var GraphicsContext) =
-    setShowMouse(ctx, false)
-    glEnable(GL_DEPTH_TEST)
-    glDepthFunc(GL_LEQUAL)
-    glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    viewStack = @[cam.view]
+    glClear(GL_DEPTH_BUFFER_BIT)
+    case fsm.currentState:
+    of FS_LOADING:
+      setUIActive(0, true)
+    of FS_TITLE:
+      setUIActive(0, true)
+      setShowMouse(ctx, true)
+    of FS_GAME:
+      setUIActive(0, false)
+      setShowMouse(ctx, false)
+      glEnable(GL_DEPTH_TEST)
+      glDepthFunc(GL_LEQUAL)
+      glEnable(GL_BLEND)
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+      viewStack = @[cam.view]
 
-    prog.use()
+      prog.use()
 
-    var proj = perspective(radians(FOVY), cam.ratio, ZNEAR, ZFAR)
+      var proj = perspective(radians(FOVY), cam.ratio, ZNEAR, ZFAR)
 
-    prog.setParam("proj", proj.caddr)
-    var pos = inverse(cam.getMat()) * vec4(0'f32, 0, 0, 1)
-    prog.setParam("lightPos", pos.caddr)
+      prog.setParam("proj", proj.caddr)
+      var pos = inverse(cam.getMat()) * vec4(0'f32, 0, 0, 1)
+      prog.setParam("lightPos", pos.caddr)
 
-    glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
+      glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
 
-    var c = [levels[0].fogColor.rf, levels[0].fogColor.gf, levels[0].fogColor.bf, levels[0].fogColor.af]
-    prog.setParam("fogColor", c.addr)
-    prog.setParam("fogDensity", levels[0].fogDensity.addr)
+      var c = [levels[0].fogColor.rf, levels[0].fogColor.gf, levels[0].fogColor.bf, levels[0].fogColor.af]
+      prog.setParam("fogColor", c.addr)
+      prog.setParam("fogDensity", levels[0].fogDensity.addr)
 
-    clearBuffer(ctx, levels[0].fogColor)
-    
-    drawScene()
+      clearBuffer(ctx, levels[0].fogColor)
+      
+      drawScene()
+    else:
+      discard
+    if tex != nil:
+      tex.draw(newRect(0, 0, 1, 1), newRect(0, 0, 128, 384))
 
   proc gameClose() =
     discard

@@ -26,6 +26,12 @@ const
   PLAYER_HEIGHT* = 2.0
   GRAVITY* = -5
 
+  UI_MULT* = 20
+  UI_SCALE* = 1 / 10
+  UI_BORDER* = 1 / 10
+  FONT_MULT* = 7
+  FONT_SIZE* = 48
+
   PROC_DATA* = [
     WorldData(
       models: @[
