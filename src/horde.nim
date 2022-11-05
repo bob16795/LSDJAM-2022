@@ -49,15 +49,22 @@ proc generateThread(input: GenThreadData) {.thread.} =
       id = json["id"].getStr()
 
     while true:
+      var got: bool
+      var checkresp: Response
+      while not got:
+        try:
+          checkresp = input.client.request("https://stablehorde.net/api/v2/generate/check/" & id)
+          got = true
+        except: 
+          sleep(100)
       let
-        checkresp = input.client.request("https://stablehorde.net/api/v2/generate/check/" & id)
         checkdata = checkresp.bodyStream.readAll()
         checkjson = parseJson(checkdata)
 
       if checkjson["done"].getBool:
         break
       echo $checkjson
-      sleep(1000)
+      sleep(max(checkjson["wait_time"].getInt * 200, 1000))
 
     let
       statusresp = input.client.request("https://stablehorde.net/api/v2/generate/status/" & id)

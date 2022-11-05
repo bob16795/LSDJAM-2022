@@ -147,7 +147,7 @@ Game:
         portals[pi].dst = ct[rand(len(ct) - 1)]
         done = true
     if not done:
-      var l = genLevel(sample(PROC_DATA), translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)), len(levels))
+      var l = genLevel(translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)), len(levels))
       levels &= l.level
       portals[pi].dst = portals.len()
       objs &= l.objects
@@ -202,7 +202,7 @@ Game:
 
     randomize()
 
-    var l = genLevel(sample(PROC_DATA))
+    var l = genLevel()
 
     levels = @[]
     portals = @[]
@@ -231,11 +231,13 @@ Game:
   proc Update(dt: float, delayed: bool): bool =
     acquire(texLock)
     if texdata != nil:
-      echo "op"
+      tex = newTexture(newVector2(128, 384))
       tex.bindTo(GL_TEXTURE0)
       # tex nothing
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA.GLint, 128, 384,
           0, GL_RGBA, GL_UNSIGNED_BYTE, texdata)
+      newRoom(tex)
+
       texdata = nil
     else:
       sendRequest("wall", newTex)

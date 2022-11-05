@@ -4,6 +4,5 @@
 [DEBUG] ho->font: Loaded font
 [DEBUG] ho->load: Init objects
 [DEBUG] ho->texture: Loaded texture
-[DEBUG] ho->texture: Loaded texture
 [DEBUG] ho->load: Done
 [DEBUG] ho->font: Unloaded font library

@@ -11,23 +11,70 @@ type
     level*: Level
     portals*: seq[Portal]
     objects*: seq[Object]
+  RoomStats* = object
+    models*: seq[Object]
+    ceiling*: bool
+    tex*: Texture
+    mapsizex*: HSlice[int, int]
+    mapsizey*: HSlice[int, int]
+    tilesize*: HSlice[float, float]
+    height*: HSlice[float, float]
+    spacer*: HSlice[float, float]
+    doors*: HSlice[int, int]
+    fogColor*: Color
+    fogDensity*: float32
+
 
 var
   screenSize*: Vector2
 
+  roomData*: seq[RoomStats]
 
-proc genLevel*(data: WorldData, translate = mat4(1'f32), idx = 0, seed = 0, rec = 0): GenOutput =
+proc newRoom*(tex: Texture) =
+  roomData &= RoomStats()
+  var d = sample(PROC_DATA)
+  for m in d.models:
+    roomData[^1].models &= newObject(m)
+  roomData[^1].ceiling = d.ceiling
+  roomData[^1].mapsizex = d.mapsizex
+  roomData[^1].mapsizey = d.mapsizey
+  roomData[^1].tilesize = d.tilesize
+  roomData[^1].height = d.height
+  roomData[^1].spacer = d.spacer
+  roomData[^1].doors = d.doors
+  roomData[^1].fogColor = d.fogColor
+  roomData[^1].fogDensity = d.fogDensity
+  roomData[^1].tex = tex
+
+proc genData*() =
+  var d = sample(PROC_DATA)
+  roomData &= RoomStats()
+  for m in d.models:
+    roomData[^1].models &= newObject(m)
+  roomData[^1].ceiling = d.ceiling
+  roomData[^1].tex = newTexture(d.tex)
+  roomData[^1].mapsizex = d.mapsizex
+  roomData[^1].mapsizey = d.mapsizey
+  roomData[^1].tilesize = d.tilesize
+  roomData[^1].height = d.height
+  roomData[^1].spacer = d.spacer
+  roomData[^1].doors = d.doors
+  roomData[^1].fogColor = d.fogColor
+  roomData[^1].fogDensity = d.fogDensity
+    
+proc genLevel*(translate = mat4(1'f32), idx = 0, seed = 0, rec = 0): GenOutput =
   result.level = Level()
 
-  var instObjs: seq[Object]
-
-  for name in data.models:
-    instObjs &= newObject(name)
-
-  result.level.tex = newTexture(data.tex)
-  
   if seed != 0:
     randomize(seed)
+
+  if roomData == @[]:
+    genData()
+
+  var data = sample(roomData)
+
+  result.level.tex = data.tex
+  
 
   ## Generate world
   var verts: seq[Vert]
@@ -50,7 +97,7 @@ proc genLevel*(data: WorldData, translate = mat4(1'f32), idx = 0, seed = 0, rec 
         x1: x1, y1: y1,
         x2: x2, y2: y2,
         x3: x1, y3: y2,
-        z: 0
+        z: 0libwinpthread-c
       )
       result.level.floors &= Floor(
         x1: x1, y1: y1,
@@ -260,7 +307,7 @@ proc genLevel*(data: WorldData, translate = mat4(1'f32), idx = 0, seed = 0, rec 
   result.level.fogColor = data.fogColor
   result.level.fogDensity = data.fogDensity
 
-  result.objects &= cloneObject(sample(instObjs), translate)
+  result.objects &= cloneObject(sample(data.models), translate)
 
   for p in result.portals:
     p.level = idx
