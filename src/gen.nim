@@ -97,7 +97,7 @@ proc genLevel*(translate = mat4(1'f32), idx = 0, seed = 0, rec = 0): GenOutput =
         x1: x1, y1: y1,
         x2: x2, y2: y2,
         x3: x1, y3: y2,
-        z: 0libwinpthread-c
+        z: 0
       )
       result.level.floors &= Floor(
         x1: x1, y1: y1,
