@@ -47,7 +47,7 @@ proc newRoom*(tex: Texture) =
   roomData[^1].tex = tex
 
 proc genData*() =
-  var d = sample(PROC_DATA)
+  var d = PROC_DATA[0]
   roomData &= RoomStats()
   for m in d.models:
     roomData[^1].models &= newObject(m)
@@ -62,7 +62,7 @@ proc genData*() =
   roomData[^1].fogColor = d.fogColor
   roomData[^1].fogDensity = d.fogDensity
     
-proc genLevel*(translate = mat4(1'f32), idx = 0, seed = 0, rec = 0): GenOutput =
+proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOutput =
   result.level = Level()
 
   if seed != 0:
@@ -310,4 +310,4 @@ proc genLevel*(translate = mat4(1'f32), idx = 0, seed = 0, rec = 0): GenOutput =
   result.objects &= cloneObject(sample(data.models), translate)
 
   for p in result.portals:
-    p.level = idx
+    p.level = levelIdx
