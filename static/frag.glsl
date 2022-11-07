@@ -7,6 +7,7 @@ in vec3 dist;
 in vec4 eyespace;
 
 uniform sampler2D tex;
+uniform sampler2D texuv;
 uniform float brightness;
 uniform vec4 fogColor;
 uniform float fogDensity;

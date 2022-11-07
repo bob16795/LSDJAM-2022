@@ -47,20 +47,20 @@ proc newRoom*(tex: Texture) =
   roomData[^1].tex = tex
 
 proc genData*() =
-  var d = PROC_DATA[0]
-  roomData &= RoomStats()
-  for m in d.models:
-    roomData[^1].models &= newObject(m)
-  roomData[^1].ceiling = d.ceiling
-  roomData[^1].tex = newTexture(d.tex)
-  roomData[^1].mapsizex = d.mapsizex
-  roomData[^1].mapsizey = d.mapsizey
-  roomData[^1].tilesize = d.tilesize
-  roomData[^1].height = d.height
-  roomData[^1].spacer = d.spacer
-  roomData[^1].doors = d.doors
-  roomData[^1].fogColor = d.fogColor
-  roomData[^1].fogDensity = d.fogDensity
+  for d in PROC_DATA:
+    roomData &= RoomStats()
+    for m in d.models:
+      roomData[^1].models &= newObject(m)
+    roomData[^1].ceiling = d.ceiling
+    roomData[^1].tex = newTexture(d.tex)
+    roomData[^1].mapsizex = d.mapsizex
+    roomData[^1].mapsizey = d.mapsizey
+    roomData[^1].tilesize = d.tilesize
+    roomData[^1].height = d.height
+    roomData[^1].spacer = d.spacer
+    roomData[^1].doors = d.doors
+    roomData[^1].fogColor = d.fogColor
+    roomData[^1].fogDensity = d.fogDensity
     
 proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOutput =
   result.level = Level()

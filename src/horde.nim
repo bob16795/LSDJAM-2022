@@ -4,6 +4,7 @@ import nimwebp.decoder
 import base64
 import hangover
 import locks
+import data
 import json
 import os
 
@@ -14,6 +15,7 @@ type
     client*: HttpClient
     texture*: string
     prompt*: string
+    default*: JsonNode
     outputProc*: OutputProcType
 
 var
@@ -22,24 +24,10 @@ var
   thr: Thread[GenThreadData]
 
 proc generateThread(input: GenThreadData) {.thread.} =
-  echo input.prompt
-
   try:
-    var body = %*{
-      "prompt": input.prompt,
-      "params": {
-        "n": 1,
-        "width": 64,
-        "height": 128 + 64,
-        "steps": 50,
-        "sampler_name": "k_euler",
-        "cfg_scale": 15,
-        "seed": "",
-        "denoising_strength": 0.25
-      },
-      "nsfw": false,
-      "models": ["stable_diffusion"]
-    }
+    var body = input.default
+    body["prompt"] = %input.prompt
+
     if input.texture != "":
       body["source_image"] = %input.texture
 
@@ -52,7 +40,6 @@ proc generateThread(input: GenThreadData) {.thread.} =
       response = input.client.request("https://stablehorde.net/api/v2/generate/async", headers = headers, httpMethod = HttpPost, body = $body)
       data = response.bodyStream.readAll()
       json = parseJson(data)
-    echo $json
     let
       id = json["id"].getStr()
 
@@ -71,10 +58,7 @@ proc generateThread(input: GenThreadData) {.thread.} =
 
       if checkjson["done"].getBool:
         break
-      echo $checkjson
       sleep(1000)
-
-    echo "generated"
 
     let
       statusresp = input.client.request("https://stablehorde.net/api/v2/generate/status/" & id)
@@ -91,29 +75,13 @@ proc generateThread(input: GenThreadData) {.thread.} =
 
     input.outputProc(decodedbytes, base64, w, h)
 
-    echo "done"
-  except ProtocolError:
-    echo ":("
+  except ProtocolError, KeyError:
+    discard
 
 proc initHorde*() =
   globalClient = newHttpClient()
 
 proc sendRequest*(prompt: string, texture: string, outputProc: OutputProcType ) =
   if not thr.running:
-    createThread(thr, generateThread, GenThreadData(prompt: prompt, client: globalClient, outputProc: outputProc, texture: texture))
-
-# when isMainModule:
-#   var output = proc (data: pointer, w, h: cint) {.closure, gcsafe, locks: "unknown".} =
-#     var f = open("lol.webp", fmWrite)
-#     f.write(data)
-#     f.close()
-
-#   initHorde()
-#   sendRequest("grass", output)
-#   deinitLock(genLock)
-
-#   while true:
-#     if not thr.running:
-#       break
-#   echo "done"
+    createThread(thr, generateThread, GenThreadData(prompt: prompt, client: globalClient, outputProc: outputProc, texture: texture, default: HORDE_DEFAULT))
   

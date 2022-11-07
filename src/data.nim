@@ -1,4 +1,6 @@
 import hangover
+import json
+import os
 
 type
   WorldData* = object
@@ -15,24 +17,38 @@ type
     fogColor*: Color
     fogDensity*: float32
 
-const
-  FOVY* = 45'f32
-  ZNEAR* = 0.01'f32
-  ZFAR* = 1000
-  RECURSION* = 1
-  BG_COLOR* = newColor(145, 145, 255, 255)
-  SENSITIVITY* = 0.05
-  WALK_SPEED* = 10
-  PLAYER_HEIGHT* = 2.0
-  GRAVITY* = -5
+var
+  HORDE_DEFAULT* = %*{
+    "params": {
+      "n": 1,
+      "width": 64,
+      "height": 192,
+      "steps": 50,
+      "sampler_name": "k_euler",
+      "cfg_scale": 15,
+      "seed": "",
+      "denoising_strength": 0.25
+    },
+    "nsfw": false,
+    "models": ["stable_diffusion"]
+  }
+  FOVY*: float32 = 45
+  ZNEAR*: float32 = 0.01
+  ZFAR*: float32 = 1000
+  RECURSION*: int = 1
+  BG_COLOR*: Color = newColor(145, 145, 255, 255)
+  SENSITIVITY*: float32 = 0.05
+  WALK_SPEED*: float32 = 10
+  PLAYER_HEIGHT*: float32 = 2.0
+  GRAVITY*: float32 = -5
 
-  UI_MULT* = 20
-  UI_SCALE* = 1 / 10
-  UI_BORDER* = 1 / 10
-  FONT_MULT* = 7
-  FONT_SIZE* = 48
+  UI_MULT*: float32 = 20
+  UI_SCALE*: float32 = 1 / 10
+  UI_BORDER*: float32 = 1 / 10
+  FONT_MULT*: float32 = 7
+  FONT_SIZE*: int = 48
 
-  PROC_DATA* = [
+  PROC_DATA* = @[
     WorldData(
       models: @[
         "content/objects/grave1.obj"
@@ -111,3 +127,67 @@ const
       fogDensity: 0.05
     ),
   ]
+
+proc getNode(n: JsonNode): JsonNode = n
+
+proc getColor(n: JsonNode): Color =
+  result = newColor(255, 255, 255, 255)
+  if n{"r"} != nil:
+    result.r = n{"r"}.getInt().uint8
+  if n{"g"} != nil:
+    result.r = n{"g"}.getInt().uint8
+  if n{"b"} != nil:
+    result.r = n{"b"}.getInt().uint8
+  if n{"a"} != nil:
+    result.r = n{"a"}.getInt().uint8
+
+proc getRooms(n: JsonNode): seq[WorldData] =
+  for room in n.getElems:
+    template setRange(v: untyped, getter: untyped, keys: varargs[string]): untyped =
+      if room{keys} != nil:
+        v = room{keys}{"min"}.getter()..room{keys}{"max"}.getter()
+    result &= WorldData(
+      tilesize: 3.0..3.0,
+      height: 3.0..3.0,
+      fogColor: newColor(193, 193, 193, 255),
+      fogDensity: 0.05
+    )
+    if room{"models"} != nil:
+      for model in room{"models"}:
+        result[^1].models &= model.getStr()
+    if room{"texture"} != nil:
+      result[^1].tex = room{"texture"}.getStr()
+    if room{"ceiling"} != nil:
+      result[^1].ceiling = room{"ceiling"}.getBool()
+    setRange(result[^1].mapsizex, getInt, "mapsizex")
+    setRange(result[^1].mapsizey, getInt, "mapsizey")
+    setRange(result[^1].doors, getInt, "doorcount")
+    setRange(result[^1].spacer, getFloat, "spacer")
+
+proc initData*() =
+  if existsFile("content/debug.json"):
+    var cfg_json = parseJson(readFile("content/debug.json"))
+
+    template setJson(v: untyped, getter: untyped, keys: varargs[string]): untyped =
+      if cfg_json{keys} != nil:
+        v = cfg_json{keys}.getter()
+
+    setJson(HORDE_DEFAULT, getNode, "horde_config")
+
+    setJson(FOVY, getFloat, "view", "fovy")
+    setJson(ZNEAR, getFloat, "view", "znear")
+    setJson(ZFAR, getFloat, "view", "zfar")
+    setJson(RECURSION, getInt, "view", "recursion")
+    setJson(BG_COLOR, getColor, "view", "bg")
+
+    setJson(SENSITIVITY, getFloat, "input", "sensitivity")
+    setJson(WALK_SPEED, getFloat, "input", "walkspeed")
+    setJson(GRAVITY, getFloat, "input", "gravity")
+
+    setJson(UI_MULT, getFloat, "ui", "mult")
+    setJson(UI_SCALE, getFloat, "ui", "texscale")
+    setJson(UI_BORDER, getFloat, "ui", "texborder")
+    setJson(FONT_MULT, getFloat, "ui", "fontmult")
+    setJson(FONT_SIZE, getInt, "ui", "fontsize")
+
+    setJson(PROC_DATA, getRooms, "rooms")

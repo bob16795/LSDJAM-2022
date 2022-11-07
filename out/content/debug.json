@@ -1,0 +1,137 @@
+{
+  "horde_config": {
+    "params": {
+      "n": 1,
+      "width": 64,
+      "height": 192,
+      "steps": 50,
+      "sampler_name": "k_euler",
+      "cfg_scale": 15,
+      "seed": "",
+      "denoising_strength": 0.25
+    },
+    "nsfw": false,
+    "models": ["stable_diffusion"]
+  },
+  "view": {
+    "fovy": 45,
+    "znear": 0.01,
+    "zfar": 100,
+    "recursion": 1,
+    "bg": {
+      "r": 145,
+      "g": 145,
+      "b": 255,
+      "a": 255
+    }
+  },
+  "input": {
+    "sensitivity": 0.05,
+    "walkspeed": 10,
+    "gravity": -5
+  },
+  "ui": {
+    "mult": 20,
+    "texscale": 0.1,
+    "texborder": 0.1,
+    "fontmult": 7,
+    "fontsize": 40
+  },
+  "rooms": [
+    {
+      "models": [
+        "content/objects/grave1.obj"
+      ],
+      "texture": "content/images/level1.png",
+      "ceiling": false,
+      "mapsizex": {
+        "min": 5,
+        "max": 7
+      },
+      "mapsizey": {
+        "min": 5,
+        "max": 7
+      },
+      "doorcount": {
+        "min": 2,
+        "max": 4
+      },
+      "spacer": {
+        "min": 0.0,
+        "max": 0.0
+      }
+    },
+    {
+      "models": [
+        "content/objects/bed1.obj",
+        "content/objects/chair1.obj"
+      ],
+      "texture": "content/images/level2.png",
+      "ceiling": true,
+      "mapsizex": {
+        "min": 5,
+        "max": 7
+      },
+      "mapsizey": {
+        "min": 5,
+        "max": 7
+      },
+      "doorcount": {
+        "min": 2,
+        "max": 4
+      },
+      "spacer": {
+        "min": 3.0,
+        "max": 4.0
+      }
+    },
+    {
+      "models": [
+        "content/objects/couch1.obj"
+      ],
+      "texture": "content/images/level3.png",
+      "ceiling": true,
+      "mapsizex": {
+        "min": 2,
+        "max": 3
+      },
+      "mapsizey": {
+        "min": 20,
+        "max": 25
+      },
+      "doorcount": {
+        "min": 2,
+        "max": 4
+      },
+      "spacer": {
+        "min": 3.0,
+        "max": 4.0
+      }
+    },
+    {
+      "models": [
+        "content/objects/mushroomT1.obj",
+        "content/objects/mushroomT2.obj",
+        "content/objects/mushroomT3.obj"
+      ],
+      "texture": "content/images/level4.png",
+      "ceiling": false,
+      "mapsizex": {
+        "min": 10,
+        "max": 12
+      },
+      "mapsizey": {
+        "min": 10,
+        "max": 12
+      },
+      "doorcount": {
+        "min": 2,
+        "max": 8
+      },
+      "spacer": {
+        "min": 30.0,
+        "max": 30.0
+      }
+    }
+  ]
+}
