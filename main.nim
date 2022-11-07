@@ -13,6 +13,7 @@ import src/ui
 import strutils
 import random
 import glm
+import json
 import base64
 import glfw
 
@@ -253,7 +254,7 @@ Game:
       tex = newTexture(newVector2(128, 384))
       tex.bindTo(GL_TEXTURE0)
       # tex nothing
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA.GLint, 64, 192,
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA.GLint, HORDE_DEFAULT{"params", "width"}.getInt().cint, HORDE_DEFAULT{"params", "height"}.getInt().cint,
           0, GL_RGBA, GL_UNSIGNED_BYTE, texdata)
       newRoom(tex)
 

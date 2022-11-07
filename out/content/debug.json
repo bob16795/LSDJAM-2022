@@ -2,9 +2,9 @@
   "horde_config": {
     "params": {
       "n": 1,
-      "width": 64,
-      "height": 192,
-      "steps": 50,
+      "width": 512,
+      "height": 1536,
+      "steps": 30,
       "sampler_name": "k_euler",
       "cfg_scale": 15,
       "seed": "",

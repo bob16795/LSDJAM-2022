@@ -58,6 +58,7 @@ proc generateThread(input: GenThreadData) {.thread.} =
 
       if checkjson["done"].getBool:
         break
+      echo $checkjson["wait_time"].getInt()
       sleep(1000)
 
     let
