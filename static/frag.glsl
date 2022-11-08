@@ -23,7 +23,11 @@ float getFogFactor(float fogCoordinate)
 
 void main()
 {
-    vec4 texture = texture2D(tex, TexCoord);
+    vec2 size = vec2(32, 98);
+
+    vec2 nearest = vec2(floor((TexCoord.x*(size.x-1)+0.5))/(size.x-1), floor((TexCoord.y*(size.y-1)+0.5))/(size.y-1));
+
+    vec4 texture = texture2D(tex, nearest);
 
     FragColor = mix(texture, vec4(0.1, 0.1, 0.1, 1.0), brightness);
     FragColor.rgb = mix(FragColor.rgb, fogColor.rgb, getFogFactor(eyespace.z / eyespace.w));
