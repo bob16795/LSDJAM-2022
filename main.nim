@@ -62,6 +62,10 @@ Game:
     tex: Texture
     texdata {.global.}: pointer
 
+  template currentWorld(pos: Vec3[float32]): int =
+    ((pos.x / WORLD_SPACING) + 0.5).int
+
+
   proc drawLoading(pc: float32, loadStatus: string, ctx: GraphicsContext, size: Point) =
     clearBuffer(ctx, bg)
 
@@ -69,7 +73,7 @@ Game:
     bg = BG_COLOR
     result = newAppData()
     result.color = bg
-    result.name = "APOP"
+    result.name = "Convolution"
 
   proc resize(data: pointer): bool =
     var dat = cast[ptr tuple[x, y: int32]](data)[]
@@ -153,7 +157,7 @@ Game:
         portals[pi].dst = ct[rand(len(ct) - 1)]
         done = true
     if not done:
-      var l = genLevel(translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)), len(levels))
+      var l = genLevel(translate(mat4(1'f32), vec3(WORLD_SPACING * len(levels).float32, 0, 0)), len(levels))
       levels &= l.level
       portals[pi].dst = portals.len()
       objs &= l.objects
@@ -248,8 +252,19 @@ Game:
 
     var dataI = FE_LOAD
     discard setFlag(addr dataI)
+  
+  var
+    fps: int
+    timer: float32
 
   proc Update(dt: float, delayed: bool): bool =
+    fps += 1
+    timer += dt
+    if timer > 1:
+      echo $(fps.float32 / timer)
+      fps = 0
+      timer = 0
+
     if texdata != nil:
       tex = newTexture(newVector2(128, 384))
       tex.bindTo(GL_TEXTURE0)
@@ -262,13 +277,11 @@ Game:
     else:
       sendRequest(sample(prompts), sample(images), newTex)
 
-
     cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED
     cam.vel.y += GRAVITY * dt
 
     if levels != @[]:
-      for l in levels:
-        l.collide(cam.pos.xyz, cam.vel)
+      levels[currentWorld(cam.pos)].collide(cam.pos.xyz, cam.vel)
 
     var pv = cam.pos
     
@@ -362,17 +375,13 @@ Game:
     glDepthMask(GL_TRUE)
 
     for p in portals:
+      if currentWorld(cam.pos) != p.level: continue
       if p.dst != -1:
         prog.setParam("model", p.toWorld.caddr)
         p.draw(prog)
     
     glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
     glDepthMask(save_depth_mask)
-
-    for p in portals:
-      if p.dst == -1:
-        prog.setParam("model", p.toWorld.caddr)
-        p.draw(prog)
 
 
   proc drawScene(rec: int = 0, outer: int = -1) =
@@ -449,8 +458,9 @@ Game:
       except:
         discard
     else:
-      for l in levels:
-        l.draw(prog)
+      levels[currentWorld(cam.pos)].draw(prog)
+      # for l in levels:
+      #   l.draw(prog)
     for o in 0..<len objs:
       objs[o].draw(prog)
     

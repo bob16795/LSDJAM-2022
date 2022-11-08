@@ -33,7 +33,7 @@ var
     "models": ["stable_diffusion"]
   }
   FOVY*: float32 = 45
-  ZNEAR*: float32 = 0.01
+  ZNEAR*: float32 = 0.1
   ZFAR*: float32 = 1000
   RECURSION*: int = 1
   BG_COLOR*: Color = newColor(145, 145, 255, 255)
@@ -47,6 +47,8 @@ var
   UI_BORDER*: float32 = 1 / 10
   FONT_MULT*: float32 = 7
   FONT_SIZE*: int = 48
+
+  WORLD_SPACING*: float32 = 300
 
   PROC_DATA* = @[
     WorldData(
@@ -179,6 +181,7 @@ proc initData*() =
     setJson(ZFAR, getFloat, "view", "zfar")
     setJson(RECURSION, getInt, "view", "recursion")
     setJson(BG_COLOR, getColor, "view", "bg")
+    setJson(WORLD_SPACING, getFloat, "view", "worldspacing")
 
     setJson(SENSITIVITY, getFloat, "input", "sensitivity")
     setJson(WALK_SPEED, getFloat, "input", "walkspeed")

@@ -10,4 +10,6 @@
 [DEBUG] ho->texture: Loaded texture
 [DEBUG] ho->texture: Loaded texture
 [DEBUG] ho->load: Done
+[TRACE] ho->events: EVENT_FSM_CHANGE
+[TRACE] ho->events: EVENT_RESIZE
 [DEBUG] ho->font: Unloaded font library
