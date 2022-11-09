@@ -46,7 +46,7 @@ var
   UI_MULT*: float32 = 20
   UI_SCALE*: float32 = 1 / 10
   UI_BORDER*: float32 = 1 / 10
-  FONT_MULT*: float32 = 7
+  FONT_MULT*: float32 = 5
   FONT_SIZE*: int = 48
 
   WORLD_SPACING*: float32 = 300

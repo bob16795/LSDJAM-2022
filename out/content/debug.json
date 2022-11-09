@@ -28,13 +28,14 @@
   "input": {
     "sensitivity": 0.05,
     "walkspeed": 10,
-    "gravity": -5
+    "gravity": -5,
+    "friction": 20
   },
   "ui": {
     "mult": 20,
     "texscale": 0.1,
     "texborder": 0.1,
-    "fontmult": 7,
+    "fontmult": 5,
     "fontsize": 40
   },
   "rooms": [
