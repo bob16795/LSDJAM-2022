@@ -41,6 +41,7 @@ var
   WALK_SPEED*: float32 = 10
   PLAYER_HEIGHT*: float32 = 2.0
   GRAVITY*: float32 = -5
+  CAM_FRICTION*: float32 = 20
 
   UI_MULT*: float32 = 20
   UI_SCALE*: float32 = 1 / 10
@@ -167,7 +168,7 @@ proc getRooms(n: JsonNode): seq[WorldData] =
     setRange(result[^1].spacer, getFloat, "spacer")
 
 proc initData*() =
-  if existsFile("content/debug.json"):
+  if fileExists("content/debug.json"):
     var cfg_json = parseJson(readFile("content/debug.json"))
 
     template setJson(v: untyped, getter: untyped, keys: varargs[string]): untyped =
@@ -186,6 +187,7 @@ proc initData*() =
     setJson(SENSITIVITY, getFloat, "input", "sensitivity")
     setJson(WALK_SPEED, getFloat, "input", "walkspeed")
     setJson(GRAVITY, getFloat, "input", "gravity")
+    setJson(CAM_FRICTION, getFloat, "input", "friction")
 
     setJson(UI_MULT, getFloat, "ui", "mult")
     setJson(UI_SCALE, getFloat, "ui", "texscale")
