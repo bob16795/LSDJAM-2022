@@ -148,7 +148,7 @@ Game:
   proc addDst(pi: int) =
     if portals[pi].dst != -1: return
     var done: bool
-    if rand(1..10) < 5:
+    if rand(1..10) < 3:
       var ct: seq[int]
       for pj in 0..<len portals:
         if pj != pi and portals[pj].dst == -1:
@@ -170,8 +170,8 @@ Game:
 
   proc newTex(data: pointer, base64: string, w, h: cint) =
     {.cast(gcsafe).}:
-      texdata = data
       images &= base64
+      texdata = data
 
   proc Initialize(ctx: var GraphicsContext) =
     for l in 1..4:
@@ -256,12 +256,13 @@ Game:
   var
     fps: int
     timer: float32
+    imglen: int
 
   proc Update(dt: float, delayed: bool): bool =
     fps += 1
     timer += dt
-    if timer > 1:
-      echo $(fps.float32 / timer)
+    if timer > 0.25:
+      framerate = "FPS: " & ($(fps.float32 / timer))[0..5] & "\nTEX: " & $imglen & "\nROOM: " & $(len(levels))
       fps = 0
       timer = 0
 
@@ -272,6 +273,7 @@ Game:
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA.GLint, HORDE_DEFAULT{"params", "width"}.getInt().cint, HORDE_DEFAULT{"params", "height"}.getInt().cint,
           0, GL_RGBA, GL_UNSIGNED_BYTE, texdata)
       newRoom(tex)
+      imglen = tex.tex.int
 
       texdata = nil
     else:
@@ -291,6 +293,7 @@ Game:
     #   entities[o].update(level, dt)
 
     for pi in 0..<len portals:
+      if currentWorld(cam.pos) != portals[pi].level: continue
       if portals[pi].contains(pv, cam.pos):
         # if portals[pi].dst == -1:
         #   addDst(pi)
@@ -389,11 +392,6 @@ Game:
       return
       
     var scissor:Rect
-
-    # update ui
-    var sc = newVector2(size.x.float32 / 100, size.y.float32 / 100)
-    var scale = min(sc.x, sc.y)
-    uiScaleMult = scale / UI_MULT
     
     if outer != -1:
       scissor = clipPortal(outer)
@@ -459,31 +457,30 @@ Game:
         discard
     else:
       levels[currentWorld(cam.pos)].draw(prog)
-      # for l in levels:
-      #   l.draw(prog)
     for o in 0..<len objs:
       objs[o].draw(prog)
     
-    val = 0.75
-    prog.setParam("brightness", addr val)
+    # val = 0.75
+    # prog.setParam("brightness", addr val)
+    # for o in 0..<len entities:
+    #   entities[o].drawBase(prog)
 
-    for o in 0..<len entities:
-      entities[o].drawBase(prog)
-
-    val = 0.0
-    prog.setParam("brightness", addr val)
+    # val = 0.0
+    # prog.setParam("brightness", addr val)
       
-    glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
-    
-    var ident = mat4(1'f32)
-    prog.setParam("model", ident.caddr)
+    # glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
 
-    for o in 0..<len objs2d:
-      objs2d[o].draw(viewStack[^1])
-    for o in 0..<len entities:
-      entities[o].draw(viewStack[^1])
+    # for o in 0..<len objs2d:
+    #   objs2d[o].draw(viewStack[^1])
+    # for o in 0..<len entities:
+    #   entities[o].draw(viewStack[^1])
 
   proc Draw(ctx: var GraphicsContext) =
+    # update ui
+    var sc = newVector2(size.x.float32 / 100, size.y.float32 / 100)
+    var scale = min(sc.x, sc.y)
+    uiScaleMult = scale / UI_MULT
+
     glClear(GL_DEPTH_BUFFER_BIT)
     case fsm.currentState:
     of FS_LOADING:
@@ -519,8 +516,6 @@ Game:
       drawScene()
     else:
       discard
-    if tex != nil:
-      tex.draw(newRect(0, 0, 1, 1), newRect(0, 0, 128, 384))
 
   proc gameClose() =
     discard

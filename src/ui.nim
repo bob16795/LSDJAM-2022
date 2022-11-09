@@ -15,7 +15,7 @@ template uiCenterAt(ox, oy: int, x, y: int, w, h: int, border: float32): Rect =
 var
   uiButtonSN, uiButtonSD, uiButtonSF: UISprite
 
-  framerate: string
+  framerate*: string
 
 proc setupUI*(textures: TextureAtlas, font: Font) =
   proc setUIFlag(e: int) =
@@ -70,6 +70,18 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
 
           action = (b: int) => setUIFlag(FE_QUIT)
           text = "Quit"
+    - UIGroup:
+      bounds = newUIRect(0, 0, 0, 0, 0, 0, 1, 1)
+      elements:
+        - UIText:
+          bounds = newUiRect(0, 0, 0, 0, 0, 0, 0, 0)
+          font = addr font
+          fontmult = FONT_MULT
+
+          color = newColor(0, 0, 0)
+
+          update = () => framerate
+          
 
   for e in mainUI:
     addUIElement(e)
