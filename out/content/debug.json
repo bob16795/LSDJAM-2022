@@ -4,11 +4,11 @@
       "n": 1,
       "width": 512,
       "height": 1536,
-      "steps": 30,
+      "steps": 20,
       "sampler_name": "k_euler",
       "cfg_scale": 15,
       "seed": "",
-      "denoising_strength": 0.25
+      "denoising_strength": 1
     },
     "nsfw": false,
     "models": ["stable_diffusion"]
