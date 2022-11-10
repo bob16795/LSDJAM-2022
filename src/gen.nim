@@ -307,7 +307,13 @@ proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOut
   result.level.fogColor = data.fogColor
   result.level.fogDensity = data.fogDensity
 
-  result.objects &= cloneObject(sample(data.models), translate)
+  var mino = min(sizex / 2, sizey / 2).int
+  var maxo = max(sizex / 2, sizey / 2).int
+
+  for o in 0..rand(mino..maxo):
+    var m = translate.translate(vec3(rand(-sizex..sizex).float32, rand(0.5..2.0), rand(-sizey..sizey).float32) * tilesize * 0.8)
+    var rot = m.rotate((rand(0..4) * 90).float32, vec3(rand(0..1).float32, rand(0..1).float32, rand(0..1).float32))
+    result.objects &= cloneObject(sample(data.models), rot)
 
   for p in result.portals:
     p.level = levelIdx
