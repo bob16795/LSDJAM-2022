@@ -33,7 +33,7 @@ var
     "models": ["stable_diffusion"]
   }
   FOVY*: float32 = 45
-  ZNEAR*: float32 = 0.01
+  ZNEAR*: float32 = 0.1
   ZFAR*: float32 = 1000
   RECURSION*: int = 1
   BG_COLOR*: Color = newColor(145, 145, 255, 255)
@@ -41,12 +41,15 @@ var
   WALK_SPEED*: float32 = 10
   PLAYER_HEIGHT*: float32 = 2.0
   GRAVITY*: float32 = -5
+  CAM_FRICTION*: float32 = 20
 
   UI_MULT*: float32 = 20
   UI_SCALE*: float32 = 1 / 10
   UI_BORDER*: float32 = 1 / 10
-  FONT_MULT*: float32 = 7
+  FONT_MULT*: float32 = 5
   FONT_SIZE*: int = 48
+
+  WORLD_SPACING*: float32 = 300
 
   PROC_DATA* = @[
     WorldData(
@@ -165,7 +168,7 @@ proc getRooms(n: JsonNode): seq[WorldData] =
     setRange(result[^1].spacer, getFloat, "spacer")
 
 proc initData*() =
-  if existsFile("content/debug.json"):
+  if fileExists("content/debug.json"):
     var cfg_json = parseJson(readFile("content/debug.json"))
 
     template setJson(v: untyped, getter: untyped, keys: varargs[string]): untyped =
@@ -179,10 +182,12 @@ proc initData*() =
     setJson(ZFAR, getFloat, "view", "zfar")
     setJson(RECURSION, getInt, "view", "recursion")
     setJson(BG_COLOR, getColor, "view", "bg")
+    setJson(WORLD_SPACING, getFloat, "view", "worldspacing")
 
     setJson(SENSITIVITY, getFloat, "input", "sensitivity")
     setJson(WALK_SPEED, getFloat, "input", "walkspeed")
     setJson(GRAVITY, getFloat, "input", "gravity")
+    setJson(CAM_FRICTION, getFloat, "input", "friction")
 
     setJson(UI_MULT, getFloat, "ui", "mult")
     setJson(UI_SCALE, getFloat, "ui", "texscale")

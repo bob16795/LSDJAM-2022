@@ -15,6 +15,8 @@ template uiCenterAt(ox, oy: int, x, y: int, w, h: int, border: float32): Rect =
 var
   uiButtonSN, uiButtonSD, uiButtonSF: UISprite
 
+  framerate*: string
+
 proc setupUI*(textures: TextureAtlas, font: Font) =
   proc setUIFlag(e: int) =
     var data = e
@@ -43,25 +45,43 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
         - UIButton:
           bounds = newUIRect(0, 2, 0, -2, 0.3, 4/6, 0.7, 5/6)
           font = addr font
+          fontmult = FONT_MULT
 
           normalUI = uiButtonSN
           focusedUI = uiButtonSF
           disabledUI = uiButtonSD
           hasTexture = true
+
+          color = newColor(0, 0, 0)
 
           action = (b: int) => setUIFlag(FE_LOAD)
           text = "New Game"
         - UIButton:
           bounds = newUIRect(0, 2, 0, -2, 0.3, 5/6, 0.7, 6/6)
           font = addr font
+          fontmult = FONT_MULT
 
           normalUI = uiButtonSN
           focusedUI = uiButtonSF
           disabledUI = uiButtonSD
           hasTexture = true
 
+          color = newColor(0, 0, 0)
+
           action = (b: int) => setUIFlag(FE_QUIT)
           text = "Quit"
+    - UIGroup:
+      bounds = newUIRect(0, 0, 0, 0, 0, 0, 1, 1)
+      elements:
+        - UIText:
+          bounds = newUiRect(0, 0, 0, 0, 0, 0, 0, 0)
+          font = addr font
+          fontmult = FONT_MULT
+
+          color = newColor(0, 0, 0)
+
+          update = () => framerate
+          
 
   for e in mainUI:
     addUIElement(e)

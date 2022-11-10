@@ -2,13 +2,13 @@
   "horde_config": {
     "params": {
       "n": 1,
-      "width": 512,
-      "height": 1536,
-      "steps": 30,
+      "width": 256,
+      "height": 768,
+      "steps": 25,
       "sampler_name": "k_euler",
       "cfg_scale": 15,
       "seed": "",
-      "denoising_strength": 0.25
+      "denoising_strength": 0.7
     },
     "nsfw": false,
     "models": ["stable_diffusion"]
@@ -28,13 +28,14 @@
   "input": {
     "sensitivity": 0.05,
     "walkspeed": 10,
-    "gravity": -5
+    "gravity": -5,
+    "friction": 20
   },
   "ui": {
     "mult": 20,
     "texscale": 0.1,
     "texborder": 0.1,
-    "fontmult": 7,
+    "fontmult": 5,
     "fontsize": 40
   },
   "rooms": [

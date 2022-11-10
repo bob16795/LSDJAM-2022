@@ -62,6 +62,10 @@ Game:
     tex: Texture
     texdata {.global.}: pointer
 
+  template currentWorld(pos: Vec3[float32]): int =
+    ((pos.x / WORLD_SPACING) + 0.5).int
+
+
   proc drawLoading(pc: float32, loadStatus: string, ctx: GraphicsContext, size: Point) =
     clearBuffer(ctx, bg)
 
@@ -69,7 +73,7 @@ Game:
     bg = BG_COLOR
     result = newAppData()
     result.color = bg
-    result.name = "APOP"
+    result.name = "Convolution"
 
   proc resize(data: pointer): bool =
     var dat = cast[ptr tuple[x, y: int32]](data)[]
@@ -144,7 +148,7 @@ Game:
   proc addDst(pi: int) =
     if portals[pi].dst != -1: return
     var done: bool
-    if rand(1..10) < 5:
+    if rand(1..10) < 3:
       var ct: seq[int]
       for pj in 0..<len portals:
         if pj != pi and portals[pj].dst == -1:
@@ -153,7 +157,7 @@ Game:
         portals[pi].dst = ct[rand(len(ct) - 1)]
         done = true
     if not done:
-      var l = genLevel(translate(mat4(1'f32), vec3(300'f32 * len(levels).float32, 0, 0)), len(levels))
+      var l = genLevel(translate(mat4(1'f32), vec3(WORLD_SPACING * len(levels).float32, 0, 0)), len(levels))
       levels &= l.level
       portals[pi].dst = portals.len()
       objs &= l.objects
@@ -166,8 +170,8 @@ Game:
 
   proc newTex(data: pointer, base64: string, w, h: cint) =
     {.cast(gcsafe).}:
-      texdata = data
       images &= base64
+      texdata = data
 
   proc Initialize(ctx: var GraphicsContext) =
     for l in 1..4:
@@ -248,8 +252,20 @@ Game:
 
     var dataI = FE_LOAD
     discard setFlag(addr dataI)
+  
+  var
+    fps: int
+    timer: float32
+    imglen: int
 
   proc Update(dt: float, delayed: bool): bool =
+    fps += 1
+    timer += dt
+    if timer > 0.25:
+      framerate = "FPS: " & ($(fps.float32 / timer))[0..5] & "\nTEX: " & $imglen & "\nROOM: " & $(len(levels))
+      fps = 0
+      timer = 0
+
     if texdata != nil:
       tex = newTexture(newVector2(128, 384))
       tex.bindTo(GL_TEXTURE0)
@@ -257,18 +273,17 @@ Game:
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA.GLint, HORDE_DEFAULT{"params", "width"}.getInt().cint, HORDE_DEFAULT{"params", "height"}.getInt().cint,
           0, GL_RGBA, GL_UNSIGNED_BYTE, texdata)
       newRoom(tex)
+      imglen = tex.tex.int
 
       texdata = nil
     else:
       sendRequest(sample(prompts), sample(images), newTex)
 
-
     cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED
     cam.vel.y += GRAVITY * dt
 
     if levels != @[]:
-      for l in levels:
-        l.collide(cam.pos.xyz, cam.vel)
+      levels[currentWorld(cam.pos)].collide(cam.pos.xyz, cam.vel)
 
     var pv = cam.pos
     
@@ -278,6 +293,7 @@ Game:
     #   entities[o].update(level, dt)
 
     for pi in 0..<len portals:
+      if currentWorld(cam.pos) != portals[pi].level: continue
       if portals[pi].contains(pv, cam.pos):
         # if portals[pi].dst == -1:
         #   addDst(pi)
@@ -362,6 +378,7 @@ Game:
     glDepthMask(GL_TRUE)
 
     for p in portals:
+      if currentWorld(cam.pos) != p.level: continue
       if p.dst != -1:
         prog.setParam("model", p.toWorld.caddr)
         p.draw(prog)
@@ -369,22 +386,12 @@ Game:
     glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
     glDepthMask(save_depth_mask)
 
-    for p in portals:
-      if p.dst == -1:
-        prog.setParam("model", p.toWorld.caddr)
-        p.draw(prog)
-
 
   proc drawScene(rec: int = 0, outer: int = -1) =
     if rec > RECURSION:
       return
       
     var scissor:Rect
-
-    # update ui
-    var sc = newVector2(size.x.float32 / 100, size.y.float32 / 100)
-    var scale = min(sc.x, sc.y)
-    uiScaleMult = scale / UI_MULT
     
     if outer != -1:
       scissor = clipPortal(outer)
@@ -449,31 +456,31 @@ Game:
       except:
         discard
     else:
-      for l in levels:
-        l.draw(prog)
+      levels[currentWorld(cam.pos)].draw(prog)
     for o in 0..<len objs:
       objs[o].draw(prog)
     
-    val = 0.75
-    prog.setParam("brightness", addr val)
+    # val = 0.75
+    # prog.setParam("brightness", addr val)
+    # for o in 0..<len entities:
+    #   entities[o].drawBase(prog)
 
-    for o in 0..<len entities:
-      entities[o].drawBase(prog)
-
-    val = 0.0
-    prog.setParam("brightness", addr val)
+    # val = 0.0
+    # prog.setParam("brightness", addr val)
       
-    glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
-    
-    var ident = mat4(1'f32)
-    prog.setParam("model", ident.caddr)
+    # glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
 
-    for o in 0..<len objs2d:
-      objs2d[o].draw(viewStack[^1])
-    for o in 0..<len entities:
-      entities[o].draw(viewStack[^1])
+    # for o in 0..<len objs2d:
+    #   objs2d[o].draw(viewStack[^1])
+    # for o in 0..<len entities:
+    #   entities[o].draw(viewStack[^1])
 
   proc Draw(ctx: var GraphicsContext) =
+    # update ui
+    var sc = newVector2(size.x.float32 / 100, size.y.float32 / 100)
+    var scale = min(sc.x, sc.y)
+    uiScaleMult = scale / UI_MULT
+
     glClear(GL_DEPTH_BUFFER_BIT)
     case fsm.currentState:
     of FS_LOADING:
@@ -509,8 +516,6 @@ Game:
       drawScene()
     else:
       discard
-    if tex != nil:
-      tex.draw(newRect(0, 0, 1, 1), newRect(0, 0, 128, 384))
 
   proc gameClose() =
     discard

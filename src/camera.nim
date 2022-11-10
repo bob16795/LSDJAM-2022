@@ -1,3 +1,4 @@
+import data
 import glm
 
 type
@@ -30,12 +31,12 @@ proc update*(c: var Camera, dt: float) =
     yw = m3 * vec3(0'f32, 1, 0)
   c.view = rotate(mat4(1.0'f32), radians(c.rvel.x), vec3(0'f32, 1, 0)) * c.view
   c.view = c.view * translate(mat4(1.0'f32), -c.vel)
-  if dt * 20 > 1:
+  if dt * CAM_FRICTION > 1:
     c.rvel = vec3(0'f32, 0, 0)
     c.vel = vec3(0'f32, 0, 0)
   else:
-    c.rvel += (c.rvel) * dt * -20
-    c.vel += (c.vel) * dt * -20
+    c.rvel -= (c.rvel) * dt * CAM_FRICTION
+    c.vel -= (c.vel) * dt * CAM_FRICTION
 
 proc getMat*(c: var Camera): Mat4[float32] =
   return c.view
