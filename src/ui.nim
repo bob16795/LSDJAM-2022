@@ -45,7 +45,7 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
         - UIButton:
           bounds = newUIRect(0, 2, 0, -2, 0.3, 4/6, 0.7, 5/6)
           font = addr font
-          fontmult = FONT_MULT
+          fontmult = FONT_MULT * 2
 
           normalUI = uiButtonSN
           focusedUI = uiButtonSF
@@ -59,7 +59,7 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
         - UIButton:
           bounds = newUIRect(0, 2, 0, -2, 0.3, 5/6, 0.7, 6/6)
           font = addr font
-          fontmult = FONT_MULT
+          fontmult = FONT_MULT * 2
 
           normalUI = uiButtonSN
           focusedUI = uiButtonSF
@@ -76,7 +76,7 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
         - UIText:
           bounds = newUiRect(0, 0, 0, 0, 0, 0, 0, 0)
           font = addr font
-          fontmult = FONT_MULT
+          fontmult = FONT_MULT * 2
 
           color = newColor(0, 0, 0)
 

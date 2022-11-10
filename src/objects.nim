@@ -13,12 +13,15 @@ type
     tex*: Texture
     vertCount*: int
     model*: Mat4[float32]
+    level*: int
 
 proc newObject*(obj: string, png = "", model = mat4(1'f32)): Object =
   result = Object()
   var obj = getObjFile(obj)
   if png != "":
     result.tex = newTexture(png)
+  else:
+    result.tex = newTexture("content/images/uv.png")
   var verts: seq[Vert]
   for f in obj.data_face:
     var v = Vert(

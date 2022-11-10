@@ -192,7 +192,6 @@ Game:
 
     fsm = initMainMachine()
 
-    glEnable(GL_DEPTH_TEST)
     prog = newShader(vertCode, geomCode, fragCode)
     prog.registerParam("view", SPKProj4)
     prog.registerParam("shift", SPKProj4)
@@ -213,7 +212,7 @@ Game:
     setStatus("Init textures")
 
     textures = newTextureAtlas()
-    textures &= newTextureData("content/images/level1.png", "ui")
+    textures &= newTextureData("content/images/ui.png", "ui")
     textures.pack()
     uv = newTexture("content/images/uv.png")
     uv.bindTo(GL_TEXTURE1)
@@ -452,18 +451,20 @@ Game:
       prog.setParam("view", viewStack[^1].caddr)
 
     var val: GLfloat = 0
+
     prog.setParam("brightness", addr val)
+    var world = currentWorld(cam.pos)
     if outer != -1:
-      try:
-        levels[portals[portals[outer].dst].level].draw(prog)
-      except:
-        discard
-    else:
-      levels[currentWorld(cam.pos)].draw(prog)
-    for o in 0..<len objs:
-      var shift = translate(mat4(1'f32), vec3(0'f32, sin(tottime + o.float32) * BOB_AMP, 0))
-      prog.setParam("shift", shift.caddr)
-      objs[o].draw(prog)
+      world = portals[portals[outer].dst].level
+    try:
+      levels[world].draw(prog)
+      for o in 0..<len objs:
+        if objs[o].level != world: continue
+        var shift = translate(mat4(1'f32), vec3(0'f32, sin(tottime + o.float32) * BOB_AMP, 0))
+        prog.setParam("shift", shift.caddr)
+        objs[o].draw(prog)
+    except:
+      discard
     var shift = mat4(1'f32)
     prog.setParam("shift", shift.caddr)
 
@@ -508,6 +509,8 @@ Game:
       drawScene()
     else:
       discard
+
+    glDisable(GL_DEPTH_TEST)
 
   proc gameClose() =
     discard

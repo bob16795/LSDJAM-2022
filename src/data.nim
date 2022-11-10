@@ -43,7 +43,7 @@ var
   GRAVITY*: float32 = -5
   CAM_FRICTION*: float32 = 20
 
-  UI_MULT*: float32 = 20
+  UI_MULT*: float32 = 30
   UI_SCALE*: float32 = 1 / 10
   UI_BORDER*: float32 = 1 / 10
   FONT_MULT*: float32 = 5

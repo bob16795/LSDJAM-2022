@@ -32,7 +32,7 @@
     "friction": 20
   },
   "ui": {
-    "mult": 20,
+    "mult": 30,
     "texscale": 0.1,
     "texborder": 0.1,
     "fontmult": 5,
