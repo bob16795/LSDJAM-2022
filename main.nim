@@ -195,6 +195,7 @@ Game:
     glEnable(GL_DEPTH_TEST)
     prog = newShader(vertCode, geomCode, fragCode)
     prog.registerParam("view", SPKProj4)
+    prog.registerParam("shift", SPKProj4)
     prog.registerParam("model", SPKProj4)
     prog.registerParam("texuv", SPKInt1)
     prog.registerParam("proj", SPKProj4)
@@ -257,10 +258,12 @@ Game:
     fps: int
     timer: float32
     imglen: int
+    tottime: float32
 
   proc Update(dt: float, delayed: bool): bool =
     fps += 1
     timer += dt
+    tottime += dt
     if timer > 0.25:
       framerate = "FPS: " & ($(fps.float32 / timer))[0..5] & "\nTEX: " & $imglen & "\nROOM: " & $(len(levels))
       fps = 0
@@ -458,22 +461,11 @@ Game:
     else:
       levels[currentWorld(cam.pos)].draw(prog)
     for o in 0..<len objs:
+      var shift = translate(mat4(1'f32), vec3(0'f32, sin(tottime + o.float32) * BOB_AMP, 0))
+      prog.setParam("shift", shift.caddr)
       objs[o].draw(prog)
-    
-    # val = 0.75
-    # prog.setParam("brightness", addr val)
-    # for o in 0..<len entities:
-    #   entities[o].drawBase(prog)
-
-    # val = 0.0
-    # prog.setParam("brightness", addr val)
-      
-    # glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
-
-    # for o in 0..<len objs2d:
-    #   objs2d[o].draw(viewStack[^1])
-    # for o in 0..<len entities:
-    #   entities[o].draw(viewStack[^1])
+    var shift = mat4(1'f32)
+    prog.setParam("shift", shift.caddr)
 
   proc Draw(ctx: var GraphicsContext) =
     # update ui

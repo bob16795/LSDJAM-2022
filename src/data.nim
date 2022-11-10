@@ -48,6 +48,7 @@ var
   UI_BORDER*: float32 = 1 / 10
   FONT_MULT*: float32 = 5
   FONT_SIZE*: int = 48
+  BOB_AMP*: float32 = 0.5
 
   WORLD_SPACING*: float32 = 300
 
@@ -183,6 +184,7 @@ proc initData*() =
     setJson(RECURSION, getInt, "view", "recursion")
     setJson(BG_COLOR, getColor, "view", "bg")
     setJson(WORLD_SPACING, getFloat, "view", "worldspacing")
+    setJson(BOB_AMP, getFloat, "view", "objectbob")
 
     setJson(SENSITIVITY, getFloat, "input", "sensitivity")
     setJson(WALK_SPEED, getFloat, "input", "walkspeed")
