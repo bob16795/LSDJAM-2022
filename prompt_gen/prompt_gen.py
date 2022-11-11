@@ -23,6 +23,6 @@ for file in file3:
         artists=(random.choice(f.readlines()).strip())
 
 #add {adjectives} if you want
-prompt= f"A game texture of a {surfaces} by {artists}, {styles}"
+prompt= f"A game texture of {surfaces} by {artists}, {styles}"
 
 print(prompt)

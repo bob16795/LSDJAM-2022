@@ -1,7 +1,7 @@
 water caustics
 hardwood floor
 checkered tile
-dropd ceiling
+drop ceiling
 wallpaper
 ornate wallpaper
 chain link fence
@@ -82,4 +82,39 @@ circus
 thrift store shelf
 grocery store shelf
 mandala
-
+bathroom tile
+subway tile
+mirrored glass
+greenhouse
+log cabin wall
+shiplap wall
+plaster wall
+lath and plaster wall
+stucco wall
+stone tile
+clover lawn
+flowerbed
+lawn
+mall tile
+terracotta tile
+cement
+bounce house
+padded room
+pillow fort
+paper stack
+junkyard
+garbage
+autumn leaves
+dirty laundry
+fossils
+sand 
+coarse sand
+play mat
+sea shells
+newsprint
+moonrock
+crystals
+glitter
+leather
+stained glass
+ 
