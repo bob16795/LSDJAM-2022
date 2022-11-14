@@ -318,9 +318,9 @@ Game:
 
     for v in viewStack[0..^2]:
       var
-        p: array[8, Vec4[float32]]
+        p: array[4, Vec4[float32]]
         found_neg_w: bool
-      for pi in 0..<8:
+      for pi in 0..<4:
         var pnt = portals[outer].verts[pi]
         p[pi] = (perspective(radians(FOVY), cam.ratio, ZNEAR, ZFAR) * v * portals[outer].model) * vec4(pnt.x, pnt.y, pnt.z, 1.0)
         if p[pi].w < 0.0:
@@ -334,7 +334,7 @@ Game:
       var
         min_x, min_y, max_x, max_y: Vec4[float32] = p[0]
 
-      for i in 0..<8:
+      for i in 0..<4:
         if (p[i].x < min_x.x): min_x = p[i]
         if (p[i].x > max_x.x): max_x = p[i]
         if (p[i].y < min_y.y): min_y = p[i]

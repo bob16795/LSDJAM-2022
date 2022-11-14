@@ -24,10 +24,10 @@ template portalVerts(dx, dy, dz: float32): untyped =
     ObjVert(x: -1.GLfloat, y:  1, z: 0),
     ObjVert(x:  1.GLfloat, y:  1, z: 0),
     
-    ObjVert(x: -(1-dx), y: -(1-dy), z: 0-dz),
-    ObjVert(x:  (1-dx), y: -(1-dy), z: 0-dz),
-    ObjVert(x: -(1-dx), y:  (1-dy), z: 0-dz),
-    ObjVert(x:  (1-dx), y:  (1-dy), z: 0-dz),
+    ObjVert(x: -(1-dx), y: -(1-dy), z: 0+dz),
+    ObjVert(x:  (1-dx), y: -(1-dy), z: 0+dz),
+    ObjVert(x: -(1-dx), y:  (1-dy), z: 0+dz),
+    ObjVert(x:  (1-dx), y:  (1-dy), z: 0+dz),
   ]
 
 proc newPortal*(size: Vector2, Tw: Mat4[float32]): Portal =
@@ -36,7 +36,7 @@ proc newPortal*(size: Vector2, Tw: Mat4[float32]): Portal =
 
   var
     aspect = size.x / size.y
-    fovy_rad = FOVY * PI / 180
+    fovy_rad = radians(FOVY)
     fovx_rad = fovy_rad / aspect
     
     dz = max(ZNEAR / cos(fovx_rad), ZNEAR / cos(fovy_rad))
@@ -59,7 +59,7 @@ proc newPortal*(size: Vector2, Tw: Mat4[float32]): Portal =
 proc respawn*(p: var Portal, size: Vector2) =
   var
     aspect = size.x / size.y
-    fovy_rad = FOVY * PI / 180
+    fovy_rad = radians(FOVY)
     fovx_rad = fovy_rad / aspect
     
     dz = max(ZNEAR / cos(fovx_rad), ZNEAR / cos(fovy_rad))
