@@ -34,7 +34,7 @@ proc draw*(obj: Obj2D, camera: Mat4[float32]) =
   var rws = vec3(camera[0][0], camera[1][0], camera[2][0])
   var uws = vec3(camera[0][1], camera[1][1], camera[2][1])
 
-  var data: array[0..3, Vert]
+  var data: array[0..3, ObjVert]
 
   for i in 0..3:
     var ss = obj.pos + (rws * objverts[i].x * 1) + (uws * objverts[i].y * 1)
@@ -51,10 +51,10 @@ proc draw*(obj: Obj2D, camera: Mat4[float32]) =
   glBufferData(GL_ARRAY_BUFFER, sizeof(data[0]) * len(data), addr data, GL_STATIC_DRAW)
 
   glBindTexture(GL_TEXTURE_2D, obj.tex.tex)
-  glVertexAttribPointer(0, 3, cGLFLOAT, GL_FALSE, sizeof(Vert).GLsizei, cast[pointer](0))
+  glVertexAttribPointer(0, 3, cGLFLOAT, GL_FALSE, sizeof(ObjVert).GLsizei, cast[pointer](0))
   glEnableVertexAttribArray(0)
-  glVertexAttribPointer(1, 3, cGLFLOAT, GL_FALSE, sizeof(Vert).GLsizei, cast[pointer](3 * sizeof(GLfloat)))
+  glVertexAttribPointer(1, 3, cGLFLOAT, GL_FALSE, sizeof(ObjVert).GLsizei, cast[pointer](3 * sizeof(GLfloat)))
   glEnableVertexAttribArray(1)
-  glVertexAttribPointer(2, 2, cGLFLOAT, GL_FALSE, sizeof(Vert).GLsizei, cast[pointer](6 * sizeof(GLfloat)))
+  glVertexAttribPointer(2, 2, cGLFLOAT, GL_FALSE, sizeof(ObjVert).GLsizei, cast[pointer](6 * sizeof(GLfloat)))
   glEnableVertexAttribArray(2)
   glDrawElements(GL_TRIANGLES, len(indices).GLsizei, GL_UNSIGNED_INT, nil)

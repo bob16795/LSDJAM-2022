@@ -1,9 +1,35 @@
 import hangover
 import obj
 import glm
+import binaryparse
+import ../content/files
+
+createParser(Vert):
+  f32: x
+  f32: y
+  f32: z
+
+createParser(Face):
+  u32: vert
+  u32: norm
+  u32: cord
+
+createParser(Cord):
+  f32: u
+  f32: v
+
+createParser(Obj):
+  u32: vertslen
+  u32: normslen
+  u32: cordslen
+  u32: faceslen
+  *Vert(): verts[vertslen]
+  *Vert(): norms[normslen]
+  *Cord(): cords[cordslen]
+  *Face(): faces[faceslen]
 
 type
-  Vert* = object
+  ObjVert* = object
     x*, y*, z*: GLfloat
     xn*, yn*, zn*: GLfloat
     u*, v*: GLfloat
@@ -15,27 +41,35 @@ type
     model*: Mat4[float32]
     level*: int
 
-proc newObject*(obj: string, png = "", model = mat4(1'f32)): Object =
+proc newObject*(objname: string, png = "", model = mat4(1'f32)): Object =
   result = Object()
-  var obj = getObjFile(obj)
+
+  var stream = res(objname).openStream()
+  var obj = Obj.get(stream)
+  stream.close()
+  
   if png != "":
-    result.tex = newTexture(png)
+    echo png
+    result.tex = newTextureMem(png.res().getPointer(), png.res().size.cint)
   else:
-    result.tex = newTexture("content/images/uv.png")
-  var verts: seq[Vert]
-  for f in obj.data_face:
-    var v = Vert(
-      x: obj.data_vert[f[0] - 1][1],
-      y: obj.data_vert[f[0] - 1][2],
-      z: obj.data_vert[f[0] - 1][3]
+    result.tex = newTextureMem(res"uv.png".getPointer(), res"uv.png".size.cint)
+  var verts: seq[ObjVert]
+  for fi in 0..<len obj.faces:
+    var f = obj.faces[fi]
+    var v = ObjVert(
+      x: obj.verts[f.vert - 1].x,
+      y: obj.verts[f.vert - 1].y,
+      z: obj.verts[f.vert - 1].z
     )
-    if f[1] != 0:
-      v.u = obj.data_tex[f[1] - 1][0]
-      v.v = 1.0 - obj.data_tex[f[1] - 1][1]
-    if f[2] != 0:
-      v.xn = obj.data_nrml[f[2] - 1][1]
-      v.yn = obj.data_nrml[f[2] - 1][2]
-      v.zn = obj.data_nrml[f[2] - 1][3]
+    try:
+      if f.cord != 0:
+        v.u = obj.cords[f.cord - 1].u
+        v.v = 1.0 - obj.cords[f.cord - 1].v
+      if f.norm != 0:
+        v.xn = obj.norms[f.norm - 1].x
+        v.yn = obj.norms[f.norm - 1].y
+        v.zn = obj.norms[f.norm - 1].z
+    except: discard
     verts &= v
   result.vertCount = len(verts)
   glGenBuffers(1, addr result.VBO)
@@ -56,11 +90,11 @@ method draw*(o: Object, p: var Shader) =
   p.setParam("model", o.model.caddr)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o.EBO)
   glBindBuffer(GL_ARRAY_BUFFER, o.VBO)
-  glVertexAttribPointer(0, 3, cGLFLOAT, GL_FALSE, sizeof(Vert).GLsizei, cast[pointer](0))
+  glVertexAttribPointer(0, 3, cGLFLOAT, GL_FALSE, sizeof(ObjVert).GLsizei, cast[pointer](0))
   glEnableVertexAttribArray(0)
-  glVertexAttribPointer(1, 3, cGLFLOAT, GL_FALSE, sizeof(Vert).GLsizei, cast[pointer](3 * sizeof(GLfloat)))
+  glVertexAttribPointer(1, 3, cGLFLOAT, GL_FALSE, sizeof(ObjVert).GLsizei, cast[pointer](3 * sizeof(GLfloat)))
   glEnableVertexAttribArray(1)
-  glVertexAttribPointer(2, 2, cGLFLOAT, GL_FALSE, sizeof(Vert).GLsizei, cast[pointer](6 * sizeof(GLfloat)))
+  glVertexAttribPointer(2, 2, cGLFLOAT, GL_FALSE, sizeof(ObjVert).GLsizei, cast[pointer](6 * sizeof(GLfloat)))
   glEnableVertexAttribArray(2)
   if o.tex != nil:
     glBindTexture(GL_TEXTURE_2D, o.tex.tex)

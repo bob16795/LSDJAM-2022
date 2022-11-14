@@ -10,6 +10,8 @@ import src/portal
 import src/entity
 import src/horde
 import src/ui
+import content/files
+
 import strutils
 import random
 import glm
@@ -175,9 +177,9 @@ Game:
 
   proc Initialize(ctx: var GraphicsContext) =
     for l in 1..4:
-      images &= encode(readFile("content/images/level" & $l & ".png"))
+      images &= encode($res("level" & $l & ".png"))
 
-    prompts = readFile("content/prompts.txt").split("\n")
+    prompts = ($res"prompts.txt").split("\n")
 
     initHorde()
     setPercent(0)
@@ -212,12 +214,13 @@ Game:
     setStatus("Init textures")
 
     textures = newTextureAtlas()
-    textures &= newTextureData("content/images/ui.png", "ui")
+    textures &= newTextureDataMem(res"ui.png".getPointer(), res"ui.png".size.cint, "ui")
     textures.pack()
-    uv = newTexture("content/images/uv.png")
+
+    uv = newTextureMem(res"uv.png".getPointer(), res"uv.png".size.cint)
     uv.bindTo(GL_TEXTURE1)
 
-    uiFont = newFont("content/font.ttf", FONT_SIZE)
+    uiFont = newFontMem($res"font.ttf", res"font.ttf".size, FONT_SIZE)
 
     setupUI(textures, uiFont)
 

@@ -55,12 +55,12 @@ var
   PROC_DATA* = @[
     WorldData(
       models: @[
-        "content/objects/grave1.obj"
+        "grave1.obj"
       ],
       pix: @[
-        "content/images/uv.png"
+        "uv.png"
       ],
-      tex: "content/images/level1.png",
+      tex: "level1.png",
       ceiling: false,
       mapsizex: 5..7,
       mapsizey: 5..7,
@@ -73,14 +73,14 @@ var
     ),
     WorldData(
       models: @[
-        "content/objects/bed1.obj",
-        "content/objects/chair1.obj",
+        "bed1.obj",
+        "chair1.obj",
       ],
       pix: @[
-        "content/images/rock.png",
-        "content/images/musk.png"
+        "rock.png",
+        "musk.png"
       ],
-      tex: "content/images/level2.png",
+      tex: "level2.png",
       ceiling: true,
       mapsizex: 5..7,
       mapsizey: 5..7,
@@ -93,13 +93,13 @@ var
     ),
     WorldData(
       models: @[
-        "content/objects/couch1.obj"
+        "couch1.obj"
       ],
       pix: @[
-        "content/images/rock.png",
-        "content/images/musk.png"
+        "rock.png",
+        "musk.png"
       ],
-      tex: "content/images/level3.png",
+      tex: "level3.png",
       ceiling: true,
       mapsizex: 2..3,
       mapsizey: 20..25,
@@ -112,14 +112,14 @@ var
     ),
     WorldData(
       models: @[
-        "content/objects/mushroomT1.obj",
-        "content/objects/mushroomT2.obj",
-        "content/objects/mushroomT3.obj",
+        "mushroomT1.obj",
+        "mushroomT2.obj",
+        "mushroomT3.obj",
       ],
       pix: @[
-        "content/images/uv.png"
+        "uv.png"
       ],
-      tex: "content/images/level4.png",
+      tex: "level4.png",
       ceiling: false,
       mapsizex: 10..12,
       mapsizey: 10..12,
@@ -169,8 +169,8 @@ proc getRooms(n: JsonNode): seq[WorldData] =
     setRange(result[^1].spacer, getFloat, "spacer")
 
 proc initData*() =
-  if fileExists("content/debug.json"):
-    var cfg_json = parseJson(readFile("content/debug.json"))
+  if fileExists("debug.json"):
+    var cfg_json = parseJson(readFile("debug.json"))
 
     template setJson(v: untyped, getter: untyped, keys: varargs[string]): untyped =
       if cfg_json{keys} != nil:

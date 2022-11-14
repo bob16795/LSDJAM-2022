@@ -28,9 +28,8 @@ template unit*(x: float32): float32 = x / 3
 
 proc newLevel*(file: string): Level =
   result = Level()
-  result.tex = newTexture("content/images/level.png")
 
-  var verts: seq[Vert]
+  var verts: seq[ObjVert]
 
   for x in -10..10:
     for y in -10..10:
@@ -54,12 +53,12 @@ proc newLevel*(file: string): Level =
       )
 
       verts &= [
-        Vert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
-        Vert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
-        Vert(x: x2, y: 0, z: y1, u: 1, v: unit(3), yn: -1),
-        Vert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
-        Vert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
-        Vert(x: x1, y: 0, z: y2, u: 0, v: unit(2), yn: -1),
+        ObjVert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
+        ObjVert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
+        ObjVert(x: x2, y: 0, z: y1, u: 1, v: unit(3), yn: -1),
+        ObjVert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
+        ObjVert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
+        ObjVert(x: x1, y: 0, z: y2, u: 0, v: unit(2), yn: -1),
       ]
 
   for line in lines(file.open(fmRead)):
@@ -83,12 +82,12 @@ proc newLevel*(file: string): Level =
       )
 
       verts &= [
-        Vert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
       ]
     of "floor":
       var z  = line.split(' ')[1].parseFloat() / 10
@@ -106,9 +105,9 @@ proc newLevel*(file: string): Level =
         z: z
       )
       verts &= [
-        Vert(x: x1, y: z, z: y1, u: 0.0, v: unit(1), yn: -1),
-        Vert(x: x2, y: z, z: y2, u: 1.0, v: unit(2), yn: -1),
-        Vert(x: x3, y: z, z: y3, u: 0.0, v: unit(2), yn: -1),
+        ObjVert(x: x1, y: z, z: y1, u: 0.0, v: unit(1), yn: -1),
+        ObjVert(x: x2, y: z, z: y2, u: 1.0, v: unit(2), yn: -1),
+        ObjVert(x: x3, y: z, z: y3, u: 0.0, v: unit(2), yn: -1),
       ]
   result.vertCount = len(verts)
 

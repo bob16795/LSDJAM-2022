@@ -6,7 +6,7 @@ import data
 
 type
   Portal* = ref object of Object
-    verts*: array[8, Vert]
+    verts*: array[8, ObjVert]
     dst*: int
 
 const
@@ -19,15 +19,15 @@ const
 
 template portalVerts(dx, dy, dz: float32): untyped =
   [
-    Vert(x: -1.GLfloat, y: -1, z: 0),
-    Vert(x:  1.GLfloat, y: -1, z: 0),
-    Vert(x: -1.GLfloat, y:  1, z: 0),
-    Vert(x:  1.GLfloat, y:  1, z: 0),
+    ObjVert(x: -1.GLfloat, y: -1, z: 0),
+    ObjVert(x:  1.GLfloat, y: -1, z: 0),
+    ObjVert(x: -1.GLfloat, y:  1, z: 0),
+    ObjVert(x:  1.GLfloat, y:  1, z: 0),
     
-    Vert(x: -(1-dx), y: -(1-dy), z: 0-dz),
-    Vert(x:  (1-dx), y: -(1-dy), z: 0-dz),
-    Vert(x: -(1-dx), y:  (1-dy), z: 0-dz),
-    Vert(x:  (1-dx), y:  (1-dy), z: 0-dz),
+    ObjVert(x: -(1-dx), y: -(1-dy), z: 0-dz),
+    ObjVert(x:  (1-dx), y: -(1-dy), z: 0-dz),
+    ObjVert(x: -(1-dx), y:  (1-dy), z: 0-dz),
+    ObjVert(x:  (1-dx), y:  (1-dy), z: 0-dz),
   ]
 
 proc newPortal*(size: Vector2, Tw: Mat4[float32]): Portal =

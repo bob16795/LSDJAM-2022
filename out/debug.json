@@ -2,13 +2,13 @@
   "horde_config": {
     "params": {
       "n": 1,
-      "width": 512,
-      "height": 1536,
-      "steps": 20,
+      "width": 256,
+      "height": 768,
+      "steps": 25,
       "sampler_name": "k_euler",
       "cfg_scale": 15,
       "seed": "",
-      "denoising_strength": 1
+      "denoising_strength": 0.7
     },
     "nsfw": false,
     "models": ["stable_diffusion"]
@@ -28,21 +28,22 @@
   "input": {
     "sensitivity": 0.05,
     "walkspeed": 10,
-    "gravity": -5
+    "gravity": -5,
+    "friction": 20
   },
   "ui": {
     "mult": 30,
     "texscale": 0.1,
     "texborder": 0.1,
-    "fontmult": 7,
+    "fontmult": 5,
     "fontsize": 40
   },
   "rooms": [
     {
       "models": [
-        "content/objects/grave1.obj"
+        "grave1.obj"
       ],
-      "texture": "content/images/level1.png",
+      "texture": "level1.png",
       "ceiling": false,
       "mapsizex": {
         "min": 5,
@@ -63,10 +64,10 @@
     },
     {
       "models": [
-        "content/objects/bed1.obj",
-        "content/objects/chair1.obj"
+        "bed1.obj",
+        "chair1.obj"
       ],
-      "texture": "content/images/level2.png",
+      "texture": "level2.png",
       "ceiling": true,
       "mapsizex": {
         "min": 5,
@@ -87,9 +88,9 @@
     },
     {
       "models": [
-        "content/objects/couch1.obj"
+        "couch1.obj"
       ],
-      "texture": "content/images/level3.png",
+      "texture": "level3.png",
       "ceiling": true,
       "mapsizex": {
         "min": 2,
@@ -110,11 +111,11 @@
     },
     {
       "models": [
-        "content/objects/mushroomT1.obj",
-        "content/objects/mushroomT2.obj",
-        "content/objects/mushroomT3.obj"
+        "mushroomT1.obj",
+        "mushroomT2.obj",
+        "mushroomT3.obj"
       ],
-      "texture": "content/images/level4.png",
+      "texture": "level4.png",
       "ceiling": false,
       "mapsizex": {
         "min": 10,

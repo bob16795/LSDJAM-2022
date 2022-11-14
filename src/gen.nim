@@ -5,6 +5,7 @@ import levels
 import random
 import data
 import glm
+import ../content/files
 
 type
   GenOutput* = object
@@ -52,7 +53,7 @@ proc genData*() =
     for m in d.models:
       roomData[^1].models &= newObject(m)
     roomData[^1].ceiling = d.ceiling
-    roomData[^1].tex = newTexture(d.tex)
+    roomData[^1].tex = newTextureMem(d.tex.res().getPointer(), d.tex.res().size.cint)
     roomData[^1].mapsizex = d.mapsizex
     roomData[^1].mapsizey = d.mapsizey
     roomData[^1].tilesize = d.tilesize
@@ -77,7 +78,7 @@ proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOut
   
 
   ## Generate world
-  var verts: seq[Vert]
+  var verts: seq[ObjVert]
   var sizex: int = rand(data.mapsizex)
   var sizey: int = rand(data.mapsizey)
   var height: float = rand(data.height)
@@ -107,21 +108,21 @@ proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOut
       )
 
       verts &= [
-        Vert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
-        Vert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
-        Vert(x: x2, y: 0, z: y1, u: 1, v: unit(3), yn: -1),
-        Vert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
-        Vert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
-        Vert(x: x1, y: 0, z: y2, u: 0, v: unit(2), yn: -1),
+        ObjVert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
+        ObjVert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
+        ObjVert(x: x2, y: 0, z: y1, u: 1, v: unit(3), yn: -1),
+        ObjVert(x: x1, y: 0, z: y1, u: 0, v: unit(3), yn: -1),
+        ObjVert(x: x2, y: 0, z: y2, u: 1, v: unit(2), yn: -1),
+        ObjVert(x: x1, y: 0, z: y2, u: 0, v: unit(2), yn: -1),
       ]
       if data.ceiling:
         verts &= [
-          Vert(x: x1, y: height + spacer, z: y1, u: 0, v: unit(2), yn: -1),
-          Vert(x: x2, y: height + spacer, z: y2, u: 1, v: unit(1), yn: -1),
-          Vert(x: x2, y: height + spacer, z: y1, u: 1, v: unit(2), yn: -1),
-          Vert(x: x1, y: height + spacer, z: y1, u: 0, v: unit(2), yn: -1),
-          Vert(x: x2, y: height + spacer, z: y2, u: 1, v: unit(1), yn: -1),
-          Vert(x: x1, y: height + spacer, z: y2, u: 0, v: unit(1), yn: -1),
+          ObjVert(x: x1, y: height + spacer, z: y1, u: 0, v: unit(2), yn: -1),
+          ObjVert(x: x2, y: height + spacer, z: y2, u: 1, v: unit(1), yn: -1),
+          ObjVert(x: x2, y: height + spacer, z: y1, u: 1, v: unit(2), yn: -1),
+          ObjVert(x: x1, y: height + spacer, z: y1, u: 0, v: unit(2), yn: -1),
+          ObjVert(x: x2, y: height + spacer, z: y2, u: 1, v: unit(1), yn: -1),
+          ObjVert(x: x1, y: height + spacer, z: y2, u: 0, v: unit(1), yn: -1),
         ]
   var dc = rand(data.doors)
   var doors: seq[int]
@@ -149,22 +150,22 @@ proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOut
     var normx = y2 - y1
 
     verts &= [
-        Vert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z2, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z3, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z3, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
       ]
 
     if not(idx in doors) or abs(a) == sizex:
       verts &= [
-        Vert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
       ]
       result.level.walls &= Wall(
         x1: x1, y1: y1,
@@ -184,22 +185,22 @@ proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOut
     idx += 1
 
     verts &= [
-        Vert(x: x1, y: z2, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
-        Vert(x: x2, y: z3, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
-        Vert(x: x2, y: z2, z: -y2, u: 1, v: unit(0), xn: normx, zn: -normy),
-        Vert(x: x1, y: z2, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
-        Vert(x: x2, y: z3, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
-        Vert(x: x1, y: z3, z: -y1, u: 0, v: unit(1), xn: normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
+        ObjVert(x: x2, y: z3, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: -y2, u: 1, v: unit(0), xn: normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
+        ObjVert(x: x2, y: z3, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
+        ObjVert(x: x1, y: z3, z: -y1, u: 0, v: unit(1), xn: normx, zn: -normy),
     ]
 
     if not(idx in doors) or abs(a) == sizex:
       verts &= [
-        Vert(x: x1, y: z1, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
-        Vert(x: x2, y: z2, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
-        Vert(x: x2, y: z1, z: -y2, u: 1, v: unit(0), xn: normx, zn: -normy),
-        Vert(x: x1, y: z1, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
-        Vert(x: x2, y: z2, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
-        Vert(x: x1, y: z2, z: -y1, u: 0, v: unit(1), xn: normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
+        ObjVert(x: x2, y: z1, z: -y2, u: 1, v: unit(0), xn: normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: -y1, u: 0, v: unit(0), xn: normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: -y2, u: 1, v: unit(1), xn: normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: -y1, u: 0, v: unit(1), xn: normx, zn: -normy),
       ]
       result.level.walls &= Wall(
           x1: x1, y1: -y1,
@@ -230,22 +231,22 @@ proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOut
     var normx = y2 - y1
 
     verts &= [
-      Vert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-      Vert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-      Vert(x: x2, y: z2, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
-      Vert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-      Vert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-      Vert(x: x1, y: z3, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
+      ObjVert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+      ObjVert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+      ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
+      ObjVert(x: x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+      ObjVert(x: x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+      ObjVert(x: x1, y: z3, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
     ]
 
     if not(idx in doors) or abs(a) == sizey:
       verts &= [
-        Vert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
-        Vert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
-        Vert(x: x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: -normy),
+        ObjVert(x: x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: -normy),
+        ObjVert(x: x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: -normy),
       ]
       result.level.walls &= Wall(
         x1: x1, y1: y1,
@@ -265,22 +266,22 @@ proc genLevel*(translate = mat4(1'f32), levelIdx = 0, seed = 0, rec = 0): GenOut
     idx += 1
 
     verts &= [
-      Vert(x: -x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
-      Vert(x: -x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
-      Vert(x: -x2, y: z2, z: y2, u: 1, v: unit(0), xn: -normx, zn: normy),
-      Vert(x: -x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
-      Vert(x: -x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
-      Vert(x: -x1, y: z3, z: y1, u: 0, v: unit(1), xn: -normx, zn: normy),
+      ObjVert(x: -x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
+      ObjVert(x: -x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
+      ObjVert(x: -x2, y: z2, z: y2, u: 1, v: unit(0), xn: -normx, zn: normy),
+      ObjVert(x: -x1, y: z2, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
+      ObjVert(x: -x2, y: z3, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
+      ObjVert(x: -x1, y: z3, z: y1, u: 0, v: unit(1), xn: -normx, zn: normy),
     ]
 
     if not(idx in doors) or abs(a) == sizey:
       verts &= [
-        Vert(x: -x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
-        Vert(x: -x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
-        Vert(x: -x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: normy),
-        Vert(x: -x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
-        Vert(x: -x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
-        Vert(x: -x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: normy),
+        ObjVert(x: -x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
+        ObjVert(x: -x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
+        ObjVert(x: -x2, y: z1, z: y2, u: 1, v: unit(0), xn: -normx, zn: normy),
+        ObjVert(x: -x1, y: z1, z: y1, u: 0, v: unit(0), xn: -normx, zn: normy),
+        ObjVert(x: -x2, y: z2, z: y2, u: 1, v: unit(1), xn: -normx, zn: normy),
+        ObjVert(x: -x1, y: z2, z: y1, u: 0, v: unit(1), xn: -normx, zn: normy),
       ]
       result.level.walls &= Wall(
         x1: -x1, y1: y1,
