@@ -34,7 +34,7 @@ var
   }
   FOVY*: float32 = 45
   ZNEAR*: float32 = 0.1
-  ZFAR*: float32 = 1000
+  ZFAR*: float32 = 100
   RECURSION*: int = 1
   BG_COLOR*: Color = newColor(145, 145, 255, 255)
   SENSITIVITY*: float32 = 0.05
@@ -49,6 +49,10 @@ var
   FONT_MULT*: float32 = 5
   FONT_SIZE*: int = 48
   BOB_AMP*: float32 = 0.5
+
+  NEW_CHANCE*: float32 = 0.5
+
+  MAX_TEX*: int = 50
 
   WORLD_SPACING*: float32 = 300
 
@@ -196,5 +200,8 @@ proc initData*() =
     setJson(UI_BORDER, getFloat, "ui", "texborder")
     setJson(FONT_MULT, getFloat, "ui", "fontmult")
     setJson(FONT_SIZE, getInt, "ui", "fontsize")
+
+    setJson(MAX_TEX, getInt, "speed", "maxtextures")
+    setJson(NEW_CHANCE, getFloat, "speed", "newroom")
 
     setJson(PROC_DATA, getRooms, "rooms")

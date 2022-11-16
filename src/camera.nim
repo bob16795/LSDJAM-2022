@@ -22,13 +22,6 @@ proc newCamera*(): Camera =
   result.view = lookAt(vec3(0'f32, 4, 0), vec3(-5'f32, 4, -5), vec3(0'f32, 1,0))
 
 proc update*(c: var Camera, dt: float) =
-  var m3 = mat3(
-    vec3(c.view[0][0], c.view[0][1], c.view[0][2]),
-    vec3(c.view[1][0], c.view[1][1], c.view[1][2]),
-    vec3(c.view[2][0], c.view[2][1], c.view[2][2]),
-  )
-  var 
-    yw = m3 * vec3(0'f32, 1, 0)
   c.view = rotate(mat4(1.0'f32), radians(c.rvel.x), vec3(0'f32, 1, 0)) * c.view
   c.view = c.view * translate(mat4(1.0'f32), -c.vel)
   if dt * CAM_FRICTION > 1:

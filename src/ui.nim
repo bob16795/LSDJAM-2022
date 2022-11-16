@@ -81,6 +81,45 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
           color = newColor(0, 0, 0)
 
           update = () => framerate
+    - UIGroup:
+      bounds = newUIRect(0, 0, 0, 0, 0.3, 0.3, 0.7, 0.7)
+      elements:
+        - UIPanel:
+          bounds = newUIRect(0, 0, 0, 0, 0, 0, 1, 1)
+          color = newColor(255, 255, 255, 255)
+  
+          texture = uiButtonSN
+        - UIText:
+          bounds = newUIRect(15, 15, -15, -15, 0, 0, 1, 0.333)
+          font = addr font
+          fontMult = FONT_MULT
+          color = newColor(0, 0, 0, 255)
+  
+          text = "Paused"
+        - UIButton:
+          bounds = newUIRect(15, 15, -15, -15, 0, 0.333, 1, 0.666)
+          font = addr font
+          fontMult = FONT_MULT
+  
+          normalUI = uiButtonSN
+          focusedUI = uiButtonSF
+          disabledUI = uiButtonSD
+          hasTexture = true
+  
+          action = (b: int) => setUIFlag(FE_PAUSE)
+          text = "Continue"
+        - UIButton:
+          bounds = newUIRect(15, 15, -15, -15, 0, 0.666, 1, 1.0)
+          font = addr font
+          fontMult = FONT_MULT
+  
+          normalUI = uiButtonSN
+          focusedUI = uiButtonSF
+          disabledUI = uiButtonSD
+          hasTexture = true
+  
+          action = (b: int) => setUIFlag(FE_QUIT)
+          text = "Menu"
           
 
   for e in mainUI:

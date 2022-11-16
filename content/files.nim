@@ -27,6 +27,9 @@ resToc(root, "content.bin",
   "objects/mushroomT1.obj|tools/obj2bin",
   "objects/mushroomT2.obj|tools/obj2bin",
   "objects/mushroomT3.obj|tools/obj2bin",
+  "objects/stove1.obj|tools/obj2bin",
+  "objects/table1.obj|tools/obj2bin",
+  "objects/tv1.obj|tools/obj2bin",
 )
 
 static:

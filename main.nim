@@ -131,6 +131,8 @@ Game:
         moveDir.x -= 1
       of keyH:
         echo len(levels)
+      of keyEscape:
+        fsm.setFlag(FE_PAUSE)
       else: discard
   
   proc keyUp(data: pointer): bool =
@@ -150,7 +152,7 @@ Game:
   proc addDst(pi: int) =
     if portals[pi].dst != -1: return
     var done: bool
-    if rand(1..10) < 3:
+    if rand(0'f32..1'f32) < NEW_CHANCE:
       var ct: seq[int]
       for pj in 0..<len portals:
         if pj != pi and portals[pj].dst == -1:
@@ -284,29 +286,33 @@ Game:
     else:
       sendRequest(sample(prompts), sample(images), newTex)
 
-    cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED
-    cam.vel.y += GRAVITY * dt
+    if fsm.currentState in [FS_GAME]:
+      cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED
+      cam.vel.y += GRAVITY * dt
 
-    if levels != @[]:
-      levels[currentWorld(cam.pos)].collide(cam.pos.xyz, cam.vel)
+      if levels != @[]:
+        levels[currentWorld(cam.pos)].collide(cam.pos.xyz, cam.vel)
 
-    var pv = cam.pos
-    
-    cam.update(dt)
+      var pv = cam.pos
+      
+      cam.update(dt)
 
-    # for o in 0..<len entities:
-    #   entities[o].update(level, dt)
+      # for o in 0..<len entities:
+      #   entities[o].update(level, dt)
 
-    for pi in 0..<len portals:
-      if currentWorld(cam.pos) != portals[pi].level: continue
-      if portals[pi].contains(pv, cam.pos):
-        # if portals[pi].dst == -1:
-        #   addDst(pi)
-        for pj in 0..<len portals:
-          if portals[pj].level == portals[portals[pi].dst].level:
-            addDst(pj)
-        cam.view = portals[pi].getView(cam.view, portals[portals[pi].dst])
-        break
+      for pi in 0..<len portals:
+        if currentWorld(cam.pos) != portals[pi].level: continue
+        if portals[pi].contains(pv, cam.pos):
+          # if portals[pi].dst == -1:
+          #   addDst(pi)
+          for pj in 0..<len portals:
+            if portals[pj].level == portals[portals[pi].dst].level:
+              addDst(pj)
+          cam.view = portals[pi].getView(cam.view, portals[portals[pi].dst])
+          break
+    else:
+      cam.rvel.x = 0
+      cam.rvel.y = 0
 
   proc drawScene(rec: int = 0, outer: int = -1)
 
@@ -472,25 +478,23 @@ Game:
     prog.setParam("shift", shift.caddr)
 
   proc Draw(ctx: var GraphicsContext) =
+    if fsm.currentState in [FS_QUIT]: quit()
+
     # update ui
     var sc = newVector2(size.x.float32 / 100, size.y.float32 / 100)
     var scale = min(sc.x, sc.y)
     uiScaleMult = scale / UI_MULT
 
     glClear(GL_DEPTH_BUFFER_BIT)
-    case fsm.currentState:
-    of FS_LOADING:
-      setUIActive(0, true)
-    of FS_TITLE:
-      setUIActive(0, true)
-      setShowMouse(ctx, true)
-    of FS_GAME:
-      setUIActive(0, false)
-      setShowMouse(ctx, false)
+    setUIActive(0, fsm.currentState in [FS_TITLE])
+    setUIActive(1, fsm.currentState in [FS_GAME])
+    setUIActive(2, fsm.currentState in [FS_PAUSE])
+
+    setShowMouse(ctx, not(fsm.currentState in [FS_GAME]))
+    if fsm.currentState in [FS_GAME, FS_PAUSE]:
       glEnable(GL_DEPTH_TEST)
       glDepthFunc(GL_LEQUAL)
-      glEnable(GL_BLEND)
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+      # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
       viewStack = @[cam.view]
 
       prog.use()
@@ -510,8 +514,6 @@ Game:
       clearBuffer(ctx, levels[0].fogColor)
       
       drawScene()
-    else:
-      discard
 
     glDisable(GL_DEPTH_TEST)
 
