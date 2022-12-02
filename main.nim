@@ -10,6 +10,7 @@ import src/portal
 import src/entity
 import src/horde
 import src/ui
+import src/prompt_gen/gen
 import content/files
 
 import strutils
@@ -61,6 +62,8 @@ Game:
 
     images: seq[string]
     
+    song: Song
+
     tex: Texture
     texdata {.global.}: pointer
 
@@ -181,7 +184,7 @@ Game:
     for l in 1..4:
       images &= encode($res("level" & $l & ".png"))
 
-    prompts = ($res"prompts.txt").split("\n")
+    importPromptJson($res("templates.json"))
 
     initHorde()
     setPercent(0)
@@ -207,6 +210,8 @@ Game:
     prog.registerParam("brightness", SPKFloat1)
     prog.registerParam("fogColor", SPKFloat4)
     prog.registerParam("fogDensity", SPKFloat1)
+
+    song = newSongMem(res"dream1_1.wav".openStream(), 0)
 
     var uvid: int = 1
 
@@ -265,6 +270,8 @@ Game:
     tottime: float32
 
   proc Update(dt: float, delayed: bool): bool =
+    song.play()
+    
     fps += 1
     timer += dt
     tottime += dt
@@ -284,7 +291,7 @@ Game:
 
       texdata = nil
     else:
-      sendRequest(sample(prompts), sample(images), newTex)
+      sendRequest(genPrompt(), sample(images), newTex)
 
     if fsm.currentState in [FS_GAME]:
       cam.vel = (cam.forward.xyz * moveDir.y + cam.right.xyz * moveDir.x) * dt * WALK_SPEED

@@ -17,11 +17,4 @@
 [DEBUG] ho->texture: Loaded texture
 [DEBUG] ho->texture: Loaded texture
 [DEBUG] ho->load: Done
-[TRACE] ho->events: EVENT_FSM_CHANGE
-[TRACE] ho->events: EVENT_RESIZE
 [DEBUG] ho->font: Unloaded font library
-[TRACE] ho->events: EVENT_RESIZE
-[TRACE] ho->events: EVENT_RESIZE_FRAMEBUFFER
-[TRACE] ho->events: EVENT_STOP_LINE_ENTER
-[TRACE] ho->events: EVENT_PRESS_UI
-[TRACE] ho->events: EVENT_FSM_CHANGE

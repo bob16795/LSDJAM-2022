@@ -3,7 +3,6 @@ import nimres
 const root = currentSourcePath() & "/.."
 
 resToc(root, "content.bin",
-  "prompts.txt",
   "font.ttf",
 
   "images/level1.png",
@@ -12,6 +11,8 @@ resToc(root, "content.bin",
   "images/level4.png",
   "images/ui.png",
   "images/uv.png",
+
+  "music/dream1_1.wav",
 
   # objects
   "objects/bed1.obj|tools/obj2bin",
@@ -30,6 +31,19 @@ resToc(root, "content.bin",
   "objects/stove1.obj|tools/obj2bin",
   "objects/table1.obj|tools/obj2bin",
   "objects/tv1.obj|tools/obj2bin",
+
+  # prompt words
+  "templates.json",
+  "prompts/adjectives.txt",
+  "prompts/animals.txt",
+  "prompts/artists.txt",
+  "prompts/colors.txt",
+  "prompts/locations.txt",
+  "prompts/of_something.txt",
+  "prompts/shapes.txt",
+  "prompts/styles.txt",
+  "prompts/surfaces.txt",
+  "prompts/things.txt",
 )
 
 static:

@@ -1,0 +1,94 @@
+{
+  "files": [
+    {
+      "file": "adjectives.txt",
+      "name": "adjective"
+    },
+    {
+      "file": "animals.txt",
+      "name": "animal"
+    },
+    {
+      "file": "artists.txt",
+      "name": "artist"
+    },
+    {
+      "file": "colors.txt",
+      "name": "color"
+    },
+    {
+      "file": "locations.txt",
+      "name": "location"
+    },
+    {
+      "file": "of_something.txt",
+      "name": "of_something"
+    },
+    {
+      "file": "shapes.txt",
+      "name": "shape"
+    },
+    {
+      "file": "styles.txt",
+      "name": "style"
+    },
+    {
+      "file": "surfaces.txt",
+      "name": "surface"
+    },
+    {
+      "file": "things.txt",
+      "name": "thing"
+    }
+  ], 
+  "prompts": [
+    {
+        "prompt" : "a {adjective} {thing}, {style}",
+        "weight": 1
+    },
+    {
+        "prompt" : "a {color} figure in {location}",
+        "weight": 1
+    },
+    {
+        "prompt": "a {adjective} {thing}, by {artist}, {style}",
+        "weight": 2 
+    },
+    {
+        "prompt": "{adjective} ophanim, tarot card, {style}",
+        "weight": 1
+    },
+    {
+        "prompt": "a {adjective} photo of a {location} taken by {artist}, UHD, photorealistic",
+        "weight": 2
+    },
+    {
+        "prompt": "a verdant overgrown {location}, {style}",
+        "weight": 1
+    },
+    {
+        "prompt": "{adjective} {color} {shape}s, vector art by {artist}",
+        "weight": 1
+    },
+    {
+        "prompt": "The {color} of the {thing} is a representation of the Viking's obsession with the {location}",
+        "weight": 1
+    },
+    {
+        "prompt": "The Korean girl is doing a {adjective} {style} painting in the digital age",
+        "weight": 1
+    },
+    {
+        "prompt": "The face of the {animal} is now etched in the {style} art of Japan",
+        "weight": 1
+    },
+    {
+        "prompt": "The Veiled Virgin Statue by {artist} covered in {adjective} cellophane centered in a {location}",
+        "weight": 1
+    },
+    {
+        "prompt": "{adjective} {animal} crystal",
+        "weight": 1
+    }
+  ]
+}

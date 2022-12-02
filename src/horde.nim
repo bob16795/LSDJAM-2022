@@ -84,5 +84,6 @@ proc initHorde*() =
 
 proc sendRequest*(prompt: string, texture: string, outputProc: OutputProcType ) =
   if not thr.running:
+    echo prompt
     createThread(thr, generateThread, GenThreadData(prompt: prompt, client: globalClient, outputProc: outputProc, texture: texture, default: HORDE_DEFAULT))
   
