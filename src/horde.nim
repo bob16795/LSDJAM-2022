@@ -11,7 +11,7 @@ import os
 type
   OutputProcType = proc (str: pointer, base64: string, w, h: cint) {.closure, gcsafe, locks: "unknown".}
 
-  GenThreadData = object  
+  GenThreadData = object
     client*: HttpClient
     texture*: string
     prompt*: string
@@ -58,17 +58,23 @@ proc generateThread(input: GenThreadData) {.thread.} =
 
       if checkjson["done"].getBool:
         break
-      echo $checkjson["wait_time"].getInt()
-      sleep(1000)
+      let wait = checkjson["wait_time"].getInt()
+      echo wait
+
+      sleep(wait * 250)
 
     let
       statusresp = input.client.request("https://stablehorde.net/api/v2/generate/status/" & id)
       statusdata = statusresp.bodyStream.readAll()
       statusjson = parseJson(statusdata)
       base64 = statusjson["generations"][^1]["img"].getStr()
+
+    echo base64
+    
+    let
       decoded = decode(statusjson["generations"][^1]["img"].getStr())
     var
-      dataBuff = cast[ptr uint8](addr decoded[0])
+      dataBuff = cast[ptr uint8](unsafeAddr decoded[0])
       dataSize = len(decoded)
       w: cint
       h: cint

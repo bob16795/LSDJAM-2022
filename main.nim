@@ -10,7 +10,7 @@ import src/portal
 import src/entity
 import src/horde
 import src/ui
-import src/prompt_gen/gen
+import src/prompt_gen/gen as prompt_gen
 import content/files
 
 import strutils

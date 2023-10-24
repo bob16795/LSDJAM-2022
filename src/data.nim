@@ -23,11 +23,11 @@ var
       "n": 1,
       "width": 64,
       "height": 192,
-      "steps": 50,
+      "steps": 10,
       "sampler_name": "k_euler",
       "cfg_scale": 15,
       "seed": "",
-      "denoising_strength": 0.25
+      "denoising_strength": 0.50
     },
     "nsfw": false,
     "models": ["stable_diffusion"]

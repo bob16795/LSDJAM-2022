@@ -50,7 +50,7 @@ proc newPortal*(size: Vector2, Tw: Mat4[float32]): Portal =
 
   glGenBuffers(1, addr result.EBO)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result.EBO)
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), addr indices, GL_STATIC_DRAW)
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), unsafeAddr indices, GL_STATIC_DRAW)
 
   result.verts = verts
   result.model = Tw
@@ -73,7 +73,7 @@ proc respawn*(p: var Portal, size: Vector2) =
 
   glGenBuffers(1, addr p.EBO)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, p.EBO)
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), addr indices, GL_STATIC_DRAW)
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), unsafeAddr indices, GL_STATIC_DRAW)
 
   p.verts = verts
 

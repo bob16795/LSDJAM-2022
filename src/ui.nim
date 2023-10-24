@@ -44,7 +44,7 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
       elements:
         - UIButton:
           bounds = newUIRect(0, 2, 0, -2, 0.3, 4/6, 0.7, 5/6)
-          font = addr font
+          font = unsafeAddr font
           fontmult = FONT_MULT * 2
 
           normalUI = uiButtonSN
@@ -58,7 +58,7 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
           text = "New Game"
         - UIButton:
           bounds = newUIRect(0, 2, 0, -2, 0.3, 5/6, 0.7, 6/6)
-          font = addr font
+          font = unsafeAddr font
           fontmult = FONT_MULT * 2
 
           normalUI = uiButtonSN
@@ -75,7 +75,7 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
       elements:
         - UIText:
           bounds = newUiRect(0, 0, 0, 0, 0, 0, 0, 0)
-          font = addr font
+          font = unsafeAddr font
           fontmult = FONT_MULT * 2
 
           color = newColor(0, 0, 0)
@@ -91,14 +91,14 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
           texture = uiButtonSN
         - UIText:
           bounds = newUIRect(15, 15, -15, -15, 0, 0, 1, 0.333)
-          font = addr font
+          font = unsafeAddr font
           fontMult = FONT_MULT
           color = newColor(0, 0, 0, 255)
   
           text = "Paused"
         - UIButton:
           bounds = newUIRect(15, 15, -15, -15, 0, 0.333, 1, 0.666)
-          font = addr font
+          font = unsafeAddr font
           fontMult = FONT_MULT
   
           normalUI = uiButtonSN
@@ -110,7 +110,7 @@ proc setupUI*(textures: TextureAtlas, font: Font) =
           text = "Continue"
         - UIButton:
           bounds = newUIRect(15, 15, -15, -15, 0, 0.666, 1, 1.0)
-          font = addr font
+          font = unsafeAddr font
           fontMult = FONT_MULT
   
           normalUI = uiButtonSN

@@ -28,7 +28,7 @@ proc newObj2d*(tex: Texture): Obj2D =
   glGenBuffers(1, addr result.ebo)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, result.ebo)
   glBindBuffer(GL_ARRAY_BUFFER, result.vbo)
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * len(indices), addr indices, GL_STATIC_DRAW)
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices[0]) * len(indices), unsafeAddr indices, GL_STATIC_DRAW)
 
 proc draw*(obj: Obj2D, camera: Mat4[float32]) =
   var rws = vec3(camera[0][0], camera[1][0], camera[2][0])
