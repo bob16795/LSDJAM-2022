@@ -1,138 +1,139 @@
 {
-  "horde_config": {
-    "params": {
-      "n": 1,
-      "width": 256,
-      "height": 768,
-      "steps": 25,
-      "sampler_name": "k_euler",
-      "cfg_scale": 15,
-      "seed": "",
-      "denoising_strength": 0.7
+    "horde_config": {
+        "params": {
+            "n": 1,
+            "width": 256,
+            "height": 768,
+            "steps": 25,
+            "sampler_name": "k_euler",
+            "cfg_scale": 15,
+            "seed": "",
+            "denoising_strength": 0.7
+        },
+        "models": [
+            "stable_diffusion"
+        ]
     },
-    "nsfw": false,
-    "models": ["stable_diffusion"]
-  },
-  "view": {
-    "fovy": 45,
-    "znear": 0.01,
-    "zfar": 100,
-    "recursion": 1,
-    "bg": {
-      "r": 145,
-      "g": 145,
-      "b": 255,
-      "a": 255
-    }
-  },
-  "input": {
-    "sensitivity": 0.05,
-    "walkspeed": 10,
-    "gravity": -5,
-    "friction": 20
-  },
-  "ui": {
-    "mult": 30,
-    "texscale": 0.1,
-    "texborder": 0.1,
-    "fontmult": 5,
-    "fontsize": 40
-  },
-  "rooms": [
-    {
-      "models": [
-        "grave1.obj"
-      ],
-      "texture": "level1.png",
-      "ceiling": false,
-      "mapsizex": {
-        "min": 5,
-        "max": 7
-      },
-      "mapsizey": {
-        "min": 5,
-        "max": 7
-      },
-      "doorcount": {
-        "min": 2,
-        "max": 4
-      },
-      "spacer": {
-        "min": 0.0,
-        "max": 0.0
-      }
+    "view": {
+        "fovy": 45,
+        "znear": 0.01,
+        "zfar": 100,
+        "recursion": 1,
+        "bg": {
+            "r": 145,
+            "g": 145,
+            "b": 255,
+            "a": 255
+        }
     },
-    {
-      "models": [
-        "bed1.obj",
-        "chair1.obj"
-      ],
-      "texture": "level2.png",
-      "ceiling": true,
-      "mapsizex": {
-        "min": 5,
-        "max": 7
-      },
-      "mapsizey": {
-        "min": 5,
-        "max": 7
-      },
-      "doorcount": {
-        "min": 2,
-        "max": 4
-      },
-      "spacer": {
-        "min": 3.0,
-        "max": 4.0
-      }
+    "input": {
+        "sensitivity": 0.05,
+        "walkspeed": 10,
+        "gravity": -5,
+        "friction": 20
     },
-    {
-      "models": [
-        "couch1.obj"
-      ],
-      "texture": "level3.png",
-      "ceiling": true,
-      "mapsizex": {
-        "min": 2,
-        "max": 3
-      },
-      "mapsizey": {
-        "min": 20,
-        "max": 25
-      },
-      "doorcount": {
-        "min": 2,
-        "max": 4
-      },
-      "spacer": {
-        "min": 3.0,
-        "max": 4.0
-      }
+    "ui": {
+        "mult": 30,
+        "texscale": 0.1,
+        "texborder": 0.1,
+        "fontmult": 5,
+        "fontsize": 40
     },
-    {
-      "models": [
-        "mushroomT1.obj",
-        "mushroomT2.obj",
-        "mushroomT3.obj"
-      ],
-      "texture": "level4.png",
-      "ceiling": false,
-      "mapsizex": {
-        "min": 10,
-        "max": 12
-      },
-      "mapsizey": {
-        "min": 10,
-        "max": 12
-      },
-      "doorcount": {
-        "min": 2,
-        "max": 8
-      },
-      "spacer": {
-        "min": 30.0,
-        "max": 30.0
-      }
-    }
-  ]
+    "rooms": [
+        {
+            "models": [
+                "grave1.obj"
+            ],
+            "texture": "level1.png",
+            "ceiling": false,
+            "mapsizex": {
+                "min": 5,
+                "max": 7
+            },
+            "mapsizey": {
+                "min": 5,
+                "max": 7
+            },
+            "doorcount": {
+                "min": 2,
+                "max": 4
+            },
+            "spacer": {
+                "min": 0.0,
+                "max": 0.0
+            }
+        },
+        {
+            "models": [
+                "bed1.obj",
+                "chair1.obj"
+            ],
+            "texture": "level2.png",
+            "ceiling": true,
+            "mapsizex": {
+                "min": 5,
+                "max": 7
+            },
+            "mapsizey": {
+                "min": 5,
+                "max": 7
+            },
+            "doorcount": {
+                "min": 2,
+                "max": 4
+            },
+            "spacer": {
+                "min": 3.0,
+                "max": 4.0
+            }
+        },
+        {
+            "models": [
+                "couch1.obj"
+            ],
+            "texture": "level3.png",
+            "ceiling": true,
+            "mapsizex": {
+                "min": 2,
+                "max": 3
+            },
+            "mapsizey": {
+                "min": 20,
+                "max": 25
+            },
+            "doorcount": {
+                "min": 2,
+                "max": 4
+            },
+            "spacer": {
+                "min": 3.0,
+                "max": 4.0
+            }
+        },
+        {
+            "models": [
+                "mushroomT1.obj",
+                "mushroomT2.obj",
+                "mushroomT3.obj"
+            ],
+            "texture": "level4.png",
+            "ceiling": false,
+            "mapsizex": {
+                "min": 10,
+                "max": 12
+            },
+            "mapsizey": {
+                "min": 10,
+                "max": 12
+            },
+            "doorcount": {
+                "min": 2,
+                "max": 8
+            },
+            "spacer": {
+                "min": 30.0,
+                "max": 30.0
+            }
+        }
+    ]
 }

@@ -31,6 +31,9 @@ Game:
     size: Vector2
 
   var
+    fog_color: Color
+    fog_density: float32
+
     bg: Color
 
     prog: Shader
@@ -268,15 +271,26 @@ Game:
     timer: float32
     imglen: int
     tottime: float32
+  
+  proc updateFog(dt: float32) = 
+    let level = currentWorld(cam.pos)
+
+    fog_color = fog_color.mix(levels[level].fogColor, 1.0 - dt.clamp(0.0, 1.0))
+
+    var c = [fog_color.rf, fog_color.gf, fog_color.bf, fog_color.af]
+    prog.setParam("fogColor", c.addr)
+    prog.setParam("fogDensity", levels[0].fogDensity.addr)
 
   proc Update(dt: float, delayed: bool): bool =
     song.play()
+
+    updateFog(dt)
     
     fps += 1
     timer += dt
     tottime += dt
     if timer > 0.25:
-      framerate = "FPS: " & ($(fps.float32 / timer))[0..5] & "\nTEX: " & $imglen & "\nROOM: " & $(len(levels))
+      framerate = "FPS: " & ($(fps.float32 / timer)) & "\nTEX: " & $imglen & "\nROOM: " & $(len(levels))
       fps = 0
       timer = 0
 
@@ -310,8 +324,8 @@ Game:
       for pi in 0..<len portals:
         if currentWorld(cam.pos) != portals[pi].level: continue
         if portals[pi].contains(pv, cam.pos):
-          # if portals[pi].dst == -1:
-          #   addDst(pi)
+          if portals[pi].dst == -1:
+            addDst(pi)
           for pj in 0..<len portals:
             if portals[pj].level == portals[portals[pi].dst].level:
               addDst(pj)
@@ -329,13 +343,17 @@ Game:
     result.width = size.x
     result.height = size.y
 
-    for v in viewStack[0..^2]:
+    for vi in 0..<(len(viewStack) - 1):
+      let v = viewStack[vi]
       var
         p: array[4, Vec4[float32]]
         found_neg_w: bool
       for pi in 0..<4:
         var pnt = portals[outer].verts[pi]
-        p[pi] = (perspective(radians(FOVY), cam.ratio, ZNEAR, ZFAR) * v * portals[outer].model) * vec4(pnt.x, pnt.y, pnt.z, 1.0)
+        p[pi] = (perspective(radians(FOVY), cam.ratio, ZNEAR, ZFAR) *
+                v *
+                portals[outer].model) *
+                vec4(pnt.x, pnt.y, pnt.z, 1.0)
         if p[pi].w < 0.0:
           found_neg_w = true
         else:
@@ -358,10 +376,24 @@ Game:
       min_y.y = (max(-1.0f, min_y.y) + 1) / 2 * size.y
       max_y.y = (min( 1.0f, max_y.y) + 1) / 2 * size.y
 
-      result.x = min_x.x
-      result.y = min_y.y
-      result.width = max_x.x - min_x.x
-      result.height = max_y.y - min_y.y
+      var r: Rect
+
+      r.x = min_x.x
+      r.y = min_y.y
+      r.width = max_x.x - min_x.x
+      r.height = max_y.y - min_y.y
+
+      result = r
+
+      # var r_min_x = max(r.x, result.x)
+      # var r_max_x = min(r.x + r.width, result.x + result.width)
+      # result.x = r_min_x
+      # result.width = r_max_x - result.x
+      # var r_min_y = max(r.y, result.y)
+      # var r_max_y = min(r.y + r.height, result.y + result.height)
+      # result.y = r_min_y
+      # result.width = r_max_y - result.y
+
       if result.width <= 0 or result.height <= 0: 
         return Rect()
 
@@ -378,12 +410,15 @@ Game:
           portalCam = portals[pi].getView(viewStack[^1], portals[portals[pi].dst])
         viewStack &= portalCam
         prog.setParam("view", viewStack[^1].caddr)
+
         drawScene(rec + 1, pi)
+
         viewStack = viewStack[0 ..< ^1]
         prog.setParam("view", viewStack[^1].caddr)
     if not save_stencil:
       glDisable(GL_STENCIL_TEST)
       glDisable(GL_SCISSOR_TEST)
+
     glClear(GL_DEPTH_BUFFER_BIT)
    
     var save_color_mask: array[0..3, GLboolean]
@@ -404,11 +439,53 @@ Game:
     glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
     glDepthMask(save_depth_mask)
 
+  proc drawPortalStencil(p: Portal) =
+    var save_color_mask: array[0..3, GLboolean]
+    var save_depth_mask: GLboolean
+    
+    glGetBooleanv(GL_COLOR_WRITEMASK, cast[ptr GLboolean](addr save_color_mask))
+    glGetBooleanv(GL_DEPTH_WRITEMASK, addr save_depth_mask)
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
+    glDepthMask(GL_FALSE)
+    glStencilFunc(GL_NEVER, 0, 0xFF)
+    glStencilOp(GL_INCR, GL_KEEP, GL_KEEP)
+
+    glClear(GL_STENCIL_BUFFER_BIT)
+    prog.setParam("view", viewStack[0].caddr)
+    var tmp = p.toWorld
+    prog.setParam("model", tmp.caddr)
+
+    p.draw(prog)
+
+    for v in 1..<len(viewStack) - 1:
+      glStencilFunc(GL_EQUAL, 0, 0xFF)
+      glStencilOp(GL_INCR, GL_KEEP, GL_KEEP)
+      var tmp = viewStack[v]
+      prog.setParam("view", tmp.caddr)
+      p.draw(prog)
+
+      glStencilFunc(GL_NEVER, 0, 0xFF);
+      glStencilOp(GL_DECR, GL_KEEP, GL_KEEP)
+      tmp = viewStack[v - 1]
+      prog.setParam("view", tmp.caddr)
+      p.draw(prog)
+    
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+    glDepthMask(GL_TRUE)
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
+
+    glStencilFunc(GL_LEQUAL, 1, 0xFF)
+    
+    glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
+    glDepthMask(save_depth_mask)
+
+    prog.setParam("view", viewStack[^1].caddr)
 
   proc drawScene(rec: int = 0, outer: int = -1) =
     if rec > RECURSION:
       return
-      
+
     var scissor:Rect
     
     if outer != -1:
@@ -424,47 +501,7 @@ Game:
     if outer != -1:
       glScissor(scissor.x.GLint, scissor.y.GLint, scissor.width.GLsizei, scissor.height.GLsizei)
 
-      var save_color_mask: array[0..3, GLboolean]
-      var save_depth_mask: GLboolean
-      
-      glGetBooleanv(GL_COLOR_WRITEMASK, cast[ptr GLboolean](addr save_color_mask))
-      glGetBooleanv(GL_DEPTH_WRITEMASK, addr save_depth_mask)
-
-      glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
-      glDepthMask(GL_FALSE)
-      glStencilFunc(GL_NEVER, 0, 0xFF)
-      glStencilOp(GL_INCR, GL_KEEP, GL_KEEP)
-
-      glClear(GL_STENCIL_BUFFER_BIT)
-      prog.setParam("view", viewStack[0].caddr)
-      var tmp = portals[outer].toWorld
-      prog.setParam("model", tmp.caddr)
-
-      portals[outer].draw(prog)
-
-      for v in 1..<(len viewStack) - 1:
-        glStencilFunc(GL_EQUAL, 0, 0xFF)
-        glStencilOp(GL_INCR, GL_KEEP, GL_KEEP)
-        var tmp = viewStack[v]
-        prog.setParam("view", tmp.caddr)
-        portals[outer].draw(prog)
-
-        glStencilFunc(GL_NEVER, 0, 0xFF);
-        glStencilOp(GL_DECR, GL_KEEP, GL_KEEP)
-        tmp = viewStack[v - 1]
-        prog.setParam("view", tmp.caddr)
-        portals[outer].draw(prog)
-      
-      glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-      glDepthMask(GL_TRUE)
-      glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP)
-
-      glStencilFunc(GL_LEQUAL, 1, 0xFF)
-      
-      glColorMask(save_color_mask[0], save_color_mask[1], save_color_mask[2], save_color_mask[3])
-      glDepthMask(save_depth_mask)
-
-      prog.setParam("view", viewStack[^1].caddr)
+      drawPortalStencil(portals[outer])
 
     var val: GLfloat = 0
 
@@ -484,6 +521,12 @@ Game:
     var shift = mat4(1'f32)
     prog.setParam("shift", shift.caddr)
 
+    for o in 0..<len entities:
+        entities[o].draw(shift)
+
+    viewStack = viewStack[0..^1]
+    prog.setParam("view", viewStack[^1].caddr)
+
   proc Draw(ctx: var GraphicsContext) =
     if fsm.currentState in [FS_QUIT]: quit()
 
@@ -500,7 +543,8 @@ Game:
     setShowMouse(ctx, not(fsm.currentState in [FS_GAME]))
     if fsm.currentState in [FS_GAME, FS_PAUSE]:
       glEnable(GL_DEPTH_TEST)
-      glDepthFunc(GL_LEQUAL)
+      # glEnable(GL_CULL_FACE)
+      # glCullFace(GL_FRONT)
       # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
       viewStack = @[cam.view]
 
@@ -509,16 +553,12 @@ Game:
       var proj = perspective(radians(FOVY), cam.ratio, ZNEAR, ZFAR)
 
       prog.setParam("proj", proj.caddr)
-      var pos = inverse(cam.getMat()) * vec4(0'f32, 0, 0, 1)
+      var pos = inverse(cam.getMat()) * vec4(1'f32, 0, 0, 1)
       prog.setParam("lightPos", pos.caddr)
 
       glClear(GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
 
-      var c = [levels[0].fogColor.rf, levels[0].fogColor.gf, levels[0].fogColor.bf, levels[0].fogColor.af]
-      prog.setParam("fogColor", c.addr)
-      prog.setParam("fogDensity", levels[0].fogDensity.addr)
-
-      clearBuffer(ctx, levels[0].fogColor)
+      clearBuffer(ctx, fog_color)
       
       drawScene()
 

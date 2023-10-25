@@ -86,6 +86,8 @@ proc cloneObject*(o: Object, model = o.model): Object =
   result.model = model
 
 method draw*(o: Object, p: var Shader) =
+  if o == nil: return
+
   p.use()
   p.setParam("model", o.model.caddr)
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o.EBO)
@@ -99,7 +101,7 @@ method draw*(o: Object, p: var Shader) =
   if o.tex != nil:
     glBindTexture(GL_TEXTURE_2D, o.tex.tex)
   if o.EBO != 0:
-    glDrawElements(GL_TRIANGLES, o.vertCount.GLsizei, GL_UNSIGNED_INT, nil)
+    glDrawElements(GL_TRIANGLES, o.vertCount.GLsizei, GL_UNSIGNED_INT, cast[pointer](0))
   else:
     glDrawArrays(GL_TRIANGLES, 0, o.vertCount.GLsizei)
   glBindTexture(GL_TEXTURE_2D, 0)

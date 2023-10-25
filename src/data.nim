@@ -4,6 +4,7 @@ import os
 
 type
   WorldData* = object
+    chance: int
     models*: seq[string]
     pix*: seq[string]
     ceiling*: bool
@@ -29,13 +30,12 @@ var
       "seed": "",
       "denoising_strength": 0.50
     },
-    "nsfw": false,
     "models": ["stable_diffusion"]
   }
   FOVY*: float32 = 45
   ZNEAR*: float32 = 0.1
   ZFAR*: float32 = 100
-  RECURSION*: int = 1
+  RECURSION*: int = 3
   BG_COLOR*: Color = newColor(145, 145, 255, 255)
   SENSITIVITY*: float32 = 0.05
   WALK_SPEED*: float32 = 10
@@ -73,7 +73,8 @@ var
       height: 3.0..3.0,
       spacer: 0.0..0.0, 
       fogColor: newColor(193, 193, 193, 255),
-      fogDensity: 0.05
+      fogDensity: 0.05,
+      chance: 1,
     ),
     WorldData(
       models: @[
@@ -93,7 +94,8 @@ var
       height: 3.0..3.0,
       spacer: 3.0..4.0,
       fogColor: newColor(193, 193, 193, 255),
-      fogDensity: 0.05
+      fogDensity: 0.05,
+      chance: 1,
     ),
     WorldData(
       models: @[
@@ -112,7 +114,8 @@ var
       height: 3.0..3.0,
       spacer: 3.0..4.0,
       fogColor: newColor(193, 193, 193, 255),
-      fogDensity: 0.05
+      fogDensity: 0.05,
+      chance: 1,
     ),
     WorldData(
       models: @[
@@ -132,7 +135,25 @@ var
       height: 3.0..3.0,
       spacer: 30.0..30.0, 
       fogColor: newColor(193, 193, 193, 255),
-      fogDensity: 0.05
+      fogDensity: 0.05,
+      chance: 1,
+    ),
+    WorldData(
+      models: @[],
+      pix: @[
+        "uv.png"
+      ],
+      tex: "level5.png",
+      ceiling: true,
+      mapsizex: 10..12,
+      mapsizey: 10..12,
+      doors: 2..4,
+      tilesize: 3.0..3.0,
+      height: 3.0..3.0,
+      spacer: 30.0..30.0, 
+      fogColor: newColor(193, 193, 193, 255),
+      fogDensity: 0.05,
+      chance: 1,
     ),
   ]
 
@@ -143,11 +164,11 @@ proc getColor(n: JsonNode): Color =
   if n{"r"} != nil:
     result.r = n{"r"}.getInt().uint8
   if n{"g"} != nil:
-    result.r = n{"g"}.getInt().uint8
+    result.g = n{"g"}.getInt().uint8
   if n{"b"} != nil:
-    result.r = n{"b"}.getInt().uint8
+    result.b = n{"b"}.getInt().uint8
   if n{"a"} != nil:
-    result.r = n{"a"}.getInt().uint8
+    result.a = n{"a"}.getInt().uint8
 
 proc getRooms(n: JsonNode): seq[WorldData] =
   for room in n.getElems:
@@ -155,6 +176,7 @@ proc getRooms(n: JsonNode): seq[WorldData] =
       if room{keys} != nil:
         v = room{keys}{"min"}.getter()..room{keys}{"max"}.getter()
     result &= WorldData(
+      chance: 1,
       tilesize: 3.0..3.0,
       height: 3.0..3.0,
       fogColor: newColor(193, 193, 193, 255),
@@ -165,6 +187,10 @@ proc getRooms(n: JsonNode): seq[WorldData] =
         result[^1].models &= model.getStr()
     if room{"texture"} != nil:
       result[^1].tex = room{"texture"}.getStr()
+    if room{"chance"} != nil:
+      result[^1].chance = room{"chance"}.getInt()
+    if room{"fogcolor"} != nil:
+      result[^1].fogColor = room{"fogcolor"}.getColor()
     if room{"ceiling"} != nil:
       result[^1].ceiling = room{"ceiling"}.getBool()
     setRange(result[^1].mapsizex, getInt, "mapsizex")

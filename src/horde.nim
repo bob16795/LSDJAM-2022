@@ -7,6 +7,7 @@ import locks
 import data
 import json
 import os
+import stablediffusion
 
 type
   OutputProcType = proc (str: pointer, base64: string, w, h: cint) {.closure, gcsafe, locks: "unknown".}
@@ -61,7 +62,7 @@ proc generateThread(input: GenThreadData) {.thread.} =
       let wait = checkjson["wait_time"].getInt()
       echo wait
 
-      sleep(wait * 250)
+      sleep(wait * 100)
 
     let
       statusresp = input.client.request("https://stablehorde.net/api/v2/generate/status/" & id)
@@ -70,20 +71,22 @@ proc generateThread(input: GenThreadData) {.thread.} =
       base64 = statusjson["generations"][^1]["img"].getStr()
 
     echo base64
+
+    let req = input.client.request(base64)
+
+    let dataOut = req.bodyStream.readAll()  
     
-    let
-      decoded = decode(statusjson["generations"][^1]["img"].getStr())
     var
-      dataBuff = cast[ptr uint8](unsafeAddr decoded[0])
-      dataSize = len(decoded)
+      dataBuff = cast[ptr uint8](unsafeAddr dataOut[0])
+      dataSize = len(dataOut)
       w: cint
       h: cint
     var decodedbytes = webpDecodeRGBA(dataBuff, dataSize.cint, addr w, addr h)
 
     input.outputProc(decodedbytes, base64, w, h)
 
-  except ProtocolError, KeyError:
-    discard
+  except ProtocolError as e:
+    echo e.msg
 
 proc initHorde*() =
   globalClient = newHttpClient()

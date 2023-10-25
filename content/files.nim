@@ -9,6 +9,7 @@ resToc(root, "content.bin",
   "images/level2.png",
   "images/level3.png",
   "images/level4.png",
+  "images/level5.png",
   "images/ui.png",
   "images/uv.png",
 

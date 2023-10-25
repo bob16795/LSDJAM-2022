@@ -24,7 +24,7 @@ type
     x3*, y3*: float32
     z*: float32
 
-template unit*(x: float32): float32 = x / 3
+template unit*(x: float32): float32 = float32(x) / 3.0
 
 proc newLevel*(file: string): Level =
   result = Level()

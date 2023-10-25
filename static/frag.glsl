@@ -29,7 +29,7 @@ void main()
 
     vec4 texture = texture2D(tex, nearest);
 
-    FragColor = mix(texture, vec4(0.1, 0.1, 0.1, 1.0), brightness);
+    FragColor = mix(texture, vec4(0.1, 0.1, 0.1, 1.0), 0.0);
     FragColor.rgb = mix(FragColor.rgb, fogColor.rgb, getFogFactor(eyespace.z / eyespace.w));
 } 
 
