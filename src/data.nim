@@ -29,7 +29,6 @@ var
       "seed": "",
       "denoising_strength": 0.50
     },
-    "nsfw": false,
     "models": ["stable_diffusion"]
   }
   FOVY*: float32 = 45

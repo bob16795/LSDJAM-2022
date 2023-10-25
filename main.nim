@@ -276,7 +276,7 @@ Game:
     timer += dt
     tottime += dt
     if timer > 0.25:
-      framerate = "FPS: " & ($(fps.float32 / timer))[0..5] & "\nTEX: " & $imglen & "\nROOM: " & $(len(levels))
+      framerate = "FPS: " & $(fps.float32 / timer) & "\nTEX: " & $imglen & "\nROOM: " & $(len(levels))
       fps = 0
       timer = 0
 
