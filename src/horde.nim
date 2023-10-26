@@ -7,7 +7,6 @@ import locks
 import data
 import json
 import os
-import stablediffusion
 
 type
   OutputProcType = proc (str: pointer, base64: string, w, h: cint) {.closure, gcsafe, locks: "unknown".}
